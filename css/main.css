@@ -1,0 +1,76 @@
+/* =======================================================
+   ZENTINEL THEME: AUTHORITATIVE & ACCESSIBLE
+   "Function over Form"
+   ======================================================= */
+
+:root {
+    /* ZRP PALETTE */
+    --navy: #002244;
+    --gold: #FFD700;
+    --white: #FFFFFF;
+    --grey-bg: #F0F2F5;
+    
+    /* SIGNAL COLORS */
+    --green: #00703C; /* Gov.uk Green */
+    --red: #D4351C;   /* Gov.uk Red */
+    --orange: #F47738;
+    
+    /* SPACING */
+    --pad: 20px;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--grey-bg);
+    color: #0b0c0c;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* HEADER: Always fixed at top context */
+header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 15px var(--pad);
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand { display: flex; flex-direction: column; }
+.zrp-text { font-size: 0.75rem; letter-spacing: 1px; opacity: 0.8; }
+.system-text { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.5px; }
+
+.gold-line {
+    height: 4px;
+    background: var(--gold);
+    margin-top: 10px;
+}
+
+#officer-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 10px; height: 10px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 5px var(--green);
+}
+
+/* CONTAINER */
+.app-container {
+    padding: var(--pad);
+    max-width: 600px; /* Tablet width limit for readability */
+    margin: 0 auto;
+}
+
+/* UTILS */
+.hidden { display: none !important; }

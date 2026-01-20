@@ -1,0 +1,86 @@
+/* =======================================================
+   COMPONENT LIBRARY
+   ======================================================= */
+
+/* 1. TYPOGRAPHY & INPUTS */
+h1 { font-size: 2rem; font-weight: 800; margin-bottom: 10px; color: var(--navy); }
+h2.step-title { font-size: 1.2rem; text-transform: uppercase; color: #505a5f; border-bottom: 2px solid #b1b4b6; padding-bottom: 5px; margin-top: 30px; }
+p.instruction { font-size: 1.1rem; color: #505a5f; margin-bottom: 30px; }
+
+label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem; /* LARGE TEXT */
+    border: 3px solid #0b0c0c;
+    border-radius: 0; /* Sharp edges = Authority */
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+input:focus { outline: 4px solid var(--gold); border-color: var(--navy); }
+
+/* 2. BUTTONS */
+button {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.1s;
+}
+
+button:active { transform: scale(0.98); }
+
+.btn-primary { background-color: var(--navy); color: white; box-shadow: 0 4px 0 #001122; }
+.btn-secondary { background-color: white; border: 3px solid var(--navy); color: var(--navy); margin-bottom: 15px; }
+.btn-accent { background-color: var(--gold); color: black; font-weight: 800; box-shadow: 0 4px 0 #b39700; }
+.btn-success { background-color: var(--green); color: white; margin-top: 10px; }
+.btn-outline { background: transparent; border: 2px solid #505a5f; color: #505a5f; margin-top: 10px; }
+.btn-text { background: none; color: #505a5f; text-decoration: underline; margin-top: 40px; font-size: 0.9rem; }
+
+/* 3. LOGIN SCREEN */
+.login-panel { background: white; padding: 40px 20px; border: 1px solid #ddd; text-align: center; margin-top: 20px; }
+.crest-placeholder { 
+    width: 60px; height: 60px; 
+    background: var(--navy); color: var(--gold); 
+    border-radius: 50%; margin: 0 auto 20px; 
+    display: grid; place-items: center; font-weight: 900; 
+}
+
+/* 4. TRAFFIC LIGHT CARDS (THE CORE VISUAL) */
+.status-card {
+    padding: 25px;
+    border: 4px solid black;
+    margin-top: 20px;
+    color: white;
+}
+.status-card h2 { font-size: 2.5rem; margin: 0; line-height: 1; }
+.status-card p { font-size: 1.3rem; margin: 10px 0 0 0; font-weight: 600; }
+
+.bg-green { background-color: var(--green); border-color: #004d29; }
+.bg-orange { background-color: var(--orange); color: black; border-color: #b54914; }
+.bg-red { background-color: var(--red); border-color: #8f1f0e; }
+
+/* 5. AI BOX */
+.ai-assistant-box {
+    background: #eef5ff;
+    border-left: 5px solid var(--navy);
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.ai-input-group { display: flex; gap: 10px; }
+.ai-input-group input { margin-bottom: 0; }
+.ai-input-group button { width: auto; padding: 0 20px; }
+
+/* 6. TICKET PREVIEW */
+.ticket-preview {
+    background: white;
+    border: 2px dashed var(--navy);
+    padding: 15px;
+    margin-top: 15px;
+}
+.fine-text { display: block; font-size: 1.5rem; color: var(--red); font-weight: 800; text-align: right; }

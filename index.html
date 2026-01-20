@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zentinel | ZRP Digital Enforcement</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+    <header id="app-header">
+        <div class="header-inner">
+            <div class="brand">
+                <span class="zrp-text">ZIMBABWE REPUBLIC POLICE</span>
+                <span class="system-text">ZENTINEL TRAFFIC</span>
+            </div>
+            <div id="officer-badge" class="hidden">
+                <span class="status-dot"></span>
+                <span id="officer-name">OFFLINE</span>
+            </div>
+        </div>
+        <div class="gold-line"></div>
+    </header>
+
+    <main class="app-container">
+
+        <section id="view-login" class="active-view">
+            <div class="login-panel">
+                <div class="crest-placeholder">ZRP</div>
+                <h1>Officer Identification</h1>
+                <p class="instruction">Enter Force Number to activate patrol mode.</p>
+                
+                <form id="login-form">
+                    <label>FORCE ID</label>
+                    <input type="text" id="force-id" placeholder="e.g. 9921" inputmode="numeric" required>
+                    
+                    <label>PASSWORD</label>
+                    <input type="password" id="password" required>
+                    
+                    <button type="submit" class="btn-primary btn-large">INITIATE SESSION</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="view-patrol" class="hidden">
+            
+            <div class="step-container" id="step-identify">
+                <h2 class="step-title">1. Identify Vehicle</h2>
+                <div class="search-group">
+                    <input type="text" id="vrn-input" placeholder="ENTER VRN (e.g. ABC-1234)" autocapitalize="characters">
+                    <button id="btn-search" class="btn-primary">SEARCH DATABASE</button>
+                </div>
+            </div>
+
+            <div id="step-result" class="hidden">
+                </div>
+
+            <div id="step-actions" class="hidden action-panel">
+                <h2 class="step-title">2. Select Procedure</h2>
+                <div class="grid-buttons">
+                    <button id="btn-inspect" class="btn-secondary">
+                        <span class="icon">🔍</span> RUN INSPECTION
+                    </button>
+                    <button id="btn-ticket" class="btn-secondary">
+                        <span class="icon">📝</span> ISSUE TICKET
+                    </button>
+                </div>
+            </div>
+
+            <div id="step-workspace" class="hidden workspace-panel">
+                
+                <div id="workspace-inspection" class="hidden">
+                    <h3>Vehicle Inspection (SI 154)</h3>
+                    <div id="checklist-container">
+                        </div>
+                    <button id="btn-submit-inspection" class="btn-primary">SUBMIT FINDINGS</button>
+                </div>
+
+                <div id="workspace-ticket" class="hidden">
+                    <h3>Issue Penalty Ticket</h3>
+                    
+                    <div class="ai-assistant-box">
+                        <label>Describe Offense (AI Auto-Fill)</label>
+                        <div class="ai-input-group">
+                            <input type="text" id="offense-input" placeholder="e.g. 'broken left headlight'">
+                            <button id="btn-ai-analyze" class="btn-accent">ASK AI</button>
+                        </div>
+                        <p id="ai-suggestion" class="ai-text hidden">...</p>
+                    </div>
+
+                    <div id="ticket-confirm-box" class="hidden">
+                        <div class="ticket-preview">
+                            <span id="lbl-charge">Charge: ...</span>
+                            <span id="lbl-fine" class="fine-text">Fine: $...</span>
+                        </div>
+                        <button id="btn-pay-now" class="btn-success">COLLECT PAYMENT</button>
+                        <button id="btn-pay-later" class="btn-outline">ISSUE FORM 265 (PAY LATER)</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <button id="btn-reset" class="btn-text hidden">Start New Stop</button>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
