@@ -17,7 +17,7 @@
         <div class="header-inner">
             <div class="brand">
                 <span class="zrp-text">ZIMBABWE REPUBLIC POLICE</span>
-                <span class="system-text">ZENTINEL TRAFFIC</span>
+                <span class="system-text">ZENTINEL APP</span>
             </div>
             <div id="officer-badge" class="hidden">
                 <span class="status-dot"></span>
@@ -32,18 +32,40 @@
         <section id="view-login" class="active-view">
             <div class="login-panel">
                 <div class="crest-placeholder">ZRP</div>
-                <h1>Officer Identification</h1>
-                <p class="instruction">Enter Force Number to activate patrol mode.</p>
+                <h1>Officer Login</h1>
                 
-                <form id="login-form">
-                    <label>FORCE ID</label>
-                    <input type="text" id="force-id" placeholder="e.g. 9921" inputmode="numeric" required>
+                <div id="login-stage-1">
+                    <p class="instruction">Enter Force Number to activate patrol mode.</p>
                     
-                    <label>PASSWORD</label>
-                    <input type="password" id="password" required>
+                    <form id="login-form">
+                        <label>FORCE ID</label>
+                        <input type="text" id="force-id" placeholder="e.g. 9921" inputmode="numeric" required>
+                        
+                        <label>PASSWORD</label>
+                        <input type="password" id="password" required>
+                        
+                        <button type="submit" class="btn-primary btn-large">VERIFY CREDENTIALS</button>
+                    </form>
+                </div>
+
+                <div id="login-stage-2" class="hidden">
+                    <div class="success-banner">✔ Credentials Verified</div>
+                    <p class="instruction">Security Requirement: Select Biometric Scan</p>
                     
-                    <button type="submit" class="btn-primary btn-large">INITIATE SESSION</button>
-                </form>
+                    <div class="bio-grid">
+                        <button id="btn-face-scan" class="btn-bio">
+                            <span class="bio-icon">👤</span>
+                            <span>FACE ID</span>
+                        </button>
+                        <button id="btn-finger-scan" class="btn-bio">
+                            <span class="bio-icon">👆</span>
+                            <span>FINGERPRINT</span>
+                        </button>
+                    </div>
+
+                    <p id="bio-feedback" class="scanning-text hidden">Initializing Hardware...</p>
+                </div>
+
             </div>
         </section>
 
@@ -58,16 +80,16 @@
             </div>
 
             <div id="step-result" class="hidden">
-                </div>
+            </div>
 
             <div id="step-actions" class="hidden action-panel">
                 <h2 class="step-title">2. Select Procedure</h2>
                 <div class="grid-buttons">
                     <button id="btn-inspect" class="btn-secondary">
-                        <span class="icon">🔍</span> RUN INSPECTION
+                        <span class="icon"></span> RUN INSPECTION
                     </button>
                     <button id="btn-ticket" class="btn-secondary">
-                        <span class="icon">📝</span> ISSUE TICKET
+                        <span class="icon"></span> ISSUE TICKET
                     </button>
                 </div>
             </div>
@@ -77,7 +99,7 @@
                 <div id="workspace-inspection" class="hidden">
                     <h3>Vehicle Inspection (SI 154)</h3>
                     <div id="checklist-container">
-                        </div>
+                    </div>
                     <button id="btn-submit-inspection" class="btn-primary">SUBMIT FINDINGS</button>
                 </div>
 
@@ -85,7 +107,7 @@
                     <h3>Issue Penalty Ticket</h3>
                     
                     <div class="ai-assistant-box">
-                        <label>Describe Offense (AI Auto-Fill)</label>
+                        <label>Describe Offense (AI-powered search)</label>
                         <div class="ai-input-group">
                             <input type="text" id="offense-input" placeholder="e.g. 'broken left headlight'">
                             <button id="btn-ai-analyze" class="btn-accent">ASK AI</button>
@@ -105,11 +127,28 @@
 
             </div>
 
-            <button id="btn-reset" class="btn-text hidden">Start New Stop</button>
+            <button id="btn-reset" class="btn-text hidden">Reset</button>
 
         </section>
 
     </main>
+    <div id="bio-overlay" class="hidden">
+    <div class="bio-box" id="bio-box">
+        
+        <div class="bio-scanner">
+            <div class="scan-ring"></div>
+            <div class="scan-icon face-features">
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+                <div class="mouth"></div>
+            </div>
+            <div class="scan-icon fingerprint-lines hidden"></div>
+            <div class="scan-icon result-icon hidden"></div>
+        </div>
+
+        <h3 id="bio-text">Authenticating...</h3>
+    </div>
+</div>
 
     <script type="module" src="js/app.js"></script>
 </body>

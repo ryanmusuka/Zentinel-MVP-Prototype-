@@ -18,11 +18,17 @@ const STATE = {
     isOffline: !navigator.onLine
 };
 
-// --- DOM ELEMENTS ---
+// --- DOM ELEMENTS (UPDATED FOR BIOMETRICS) ---
 const UI = {
     views: {
         login: document.getElementById('view-login'),
         patrol: document.getElementById('view-patrol')
+    },
+    // NEW: References for the 2 Login Stages
+    login: {
+        stage1: document.getElementById('login-stage-1'),
+        stage2: document.getElementById('login-stage-2'),
+        bioFeedback: document.getElementById('bio-feedback')
     },
     steps: {
         identify: document.getElementById('step-identify'),
@@ -48,8 +54,12 @@ const UI = {
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Login Form Submit
-    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    // Login Stage 1: Credentials
+    document.getElementById('login-form').addEventListener('submit', handleCredentialCheck);
+
+    // Login Stage 2: Biometrics (NEW LISTENERS)
+    document.getElementById('btn-face-scan').addEventListener('click', () => handleBiometric('face'));
+    document.getElementById('btn-finger-scan').addEventListener('click', () => handleBiometric('fingerprint'));
 
     // Search VRN Button
     document.getElementById('btn-search').addEventListener('click', handleSearch);
@@ -69,31 +79,122 @@ document.addEventListener('DOMContentLoaded', () => {
     // Network Status Listeners
     window.addEventListener('online', updateNetworkStatus);
     window.addEventListener('offline', updateNetworkStatus);
-    updateNetworkStatus(); // Run once on load
+    updateNetworkStatus(); 
 });
 
 /* ==========================================================================
    2. CORE WORKFLOW FUNCTIONS
    ========================================================================== */
 
-// --- LOGIN (Process 1.0) ---
-async function handleLogin(e) {
+// --- LOGIN PART 1: CREDENTIALS (Process 1.1) ---
+async function handleCredentialCheck(e) {
     e.preventDefault();
     const forceId = UI.inputs.forceId.value;
     const password = UI.inputs.password.value;
+    const submitBtn = document.querySelector('#login-form button');
 
     try {
-        const user = await Auth.login(forceId, password);
-        STATE.currentUser = user;
+        submitBtn.textContent = "VERIFYING...";
         
-        // Update UI
-        UI.header.name.textContent = `${user.rank} ${user.name}`;
-        UI.header.badge.classList.remove('hidden');
-        switchView('patrol');
+        // 1. Check ID/Pass with Auth Module
+        const userPartial = await Auth.login(forceId, password);
         
+        // 2. Store user temporarily (not fully logged in yet)
+        STATE.currentUser = userPartial;
+
+        // 3. Switch to Stage 2 (Biometrics)
+        UI.login.stage1.classList.add('hidden');
+        UI.login.stage2.classList.remove('hidden');
+
     } catch (error) {
         alert("ACCESS DENIED: " + error.message);
+        submitBtn.textContent = "INITIATE SESSION";
     }
+}
+
+// --- LOGIN PART 2: BIOMETRICS (Updated Flow) ---
+async function handleBiometric(type) {
+    // 1. Get Elements
+    const overlay = document.getElementById('bio-overlay');
+    const box = document.getElementById('bio-box');
+    const text = document.getElementById('bio-text');
+    
+    const faceIcon = document.querySelector('.face-features');
+    const fingerIcon = document.querySelector('.fingerprint-lines');
+    const resultIcon = document.querySelector('.result-icon');
+    const ring = document.querySelector('.scan-ring');
+
+    // 2. Reset Animation State
+    overlay.classList.remove('hidden'); 
+    box.className = 'bio-box'; 
+    resultIcon.classList.add('hidden'); 
+    ring.classList.remove('hidden'); 
+    text.textContent = type === 'face' ? "Scanning Face..." : "Scanning Print...";
+
+    // Toggle Icons
+    if (type === 'face') {
+        faceIcon.classList.remove('hidden');
+        fingerIcon.classList.add('hidden');
+    } else {
+        faceIcon.classList.add('hidden');
+        fingerIcon.classList.remove('hidden');
+    }
+
+    try {
+        // 3. Call Auth Module
+        const result = await Auth.verifyBiometric(type);
+
+        if (result.success) {
+            // --- SUCCESS ANIMATION ---
+            box.classList.add('success'); 
+            ring.classList.add('hidden'); 
+            faceIcon.classList.add('hidden');
+            fingerIcon.classList.add('hidden');
+            
+            resultIcon.textContent = "✔";
+            resultIcon.classList.remove('hidden');
+            text.textContent = "Verified!";
+
+            // 4. THE HANDOFF (Wait 1.5s then switch)
+            setTimeout(() => {
+                overlay.classList.add('hidden'); // Close Popup
+                completeLogin(); // Trigger Dashboard
+            }, 1500);
+        }
+    } catch (error) {
+        // --- FAILURE ANIMATION ---
+        box.classList.add('error');
+        ring.classList.add('hidden');
+        faceIcon.classList.add('hidden');
+        fingerIcon.classList.add('hidden');
+
+        resultIcon.textContent = "✘";
+        resultIcon.classList.remove('hidden');
+        text.textContent = "Unrecognised!";
+
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 2000);
+    }
+}
+
+// --- LOGIN PART 3: FINALIZE (Force View Switch) ---
+function completeLogin() {
+    console.log("Switching to Patrol View..."); // Debugging Check
+
+    const user = STATE.currentUser;
+    
+    // 1. Update Header
+    UI.header.name.textContent = `${user.rank} ${user.name}`;
+    UI.header.badge.classList.remove('hidden');
+    
+    // 2. HARD RESET: Hide all Login parts
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-login').classList.remove('active-view');
+    
+    // 3. SHOW DASHBOARD
+    document.getElementById('view-patrol').classList.remove('hidden');
+    document.getElementById('view-patrol').classList.add('active-view');
 }
 
 // --- SEARCH VEHICLE (Process 2.0) ---
@@ -101,26 +202,28 @@ async function handleSearch() {
     const vrn = UI.inputs.vrn.value.toUpperCase();
     if (!vrn) return alert("Please enter a VRN");
 
-    // Clear previous results
     UI.steps.result.innerHTML = '<p>Scanning Database...</p>';
     UI.steps.result.classList.remove('hidden');
 
-    // Run Logic
     const analysis = await Vehicle.analyze(vrn);
     STATE.currentVehicle = analysis;
 
     renderStatusCard(analysis.status);
     
-    // Show Next Step
     UI.steps.actions.classList.remove('hidden');
     document.getElementById('btn-reset').classList.remove('hidden');
 
     // SCENARIO B: IMPOUND LOGIC
-    // If Status is RED, we lock the "Ticket" button and force Impound
     if (analysis.status.color === 'RED') {
-        document.getElementById('btn-ticket').disabled = true;
-        document.getElementById('btn-ticket').innerHTML = "🚫 TICKET BLOCKED";
-        alert("⚠️ WARNING: HIGH RISK VEHICLE. IMPOUND PROTOCOL ACTIVE.");
+        const canOverride = STATE.currentUser.permissions.canOverrideImpound;
+        
+        if (!canOverride) {
+            document.getElementById('btn-ticket').disabled = true;
+            document.getElementById('btn-ticket').innerHTML = "🚫 TICKET BLOCKED";
+            alert("⚠️ WARNING: HIGH RISK VEHICLE. IMPOUND PROTOCOL ACTIVE.");
+        } else {
+             document.getElementById('btn-ticket').innerHTML = "⚠️ ISSUE TICKET (OVERRIDE)";
+        }
     } else {
         document.getElementById('btn-ticket').disabled = false;
         document.getElementById('btn-ticket').innerHTML = "<span class='icon'>📝</span> ISSUE TICKET";
@@ -131,10 +234,9 @@ async function handleSearch() {
 function startInspection() {
     showWorkspace('inspection');
     const container = document.getElementById('checklist-container');
-    container.innerHTML = ''; // Clear
+    container.innerHTML = ''; 
 
     const checklist = Inspection.getChecklist();
-    
     checklist.forEach(item => {
         const div = document.createElement('div');
         div.style.marginBottom = "10px";
@@ -157,29 +259,23 @@ async function runAIAnalysis() {
     const text = UI.inputs.offenseDesc.value;
     if (!text) return alert("Describe the offense first.");
 
-    const aiBox = document.querySelector('.ai-assistant-box');
     const suggestionText = document.getElementById('ai-suggestion');
-    
     suggestionText.textContent = "🤖 ZRP AI is analyzing Law Library...";
     suggestionText.classList.remove('hidden');
 
-    // Call the AI Module
     const violation = await AIAgent.analyze(text);
     
-    // Update State
     STATE.currentTicket = {
         ...violation,
         vrn: STATE.currentVehicle.data ? STATE.currentVehicle.data.vrn : UI.inputs.vrn.value,
         amount: violation.fine_amount
     };
 
-    // Show Result
     suggestionText.innerHTML = `
         <strong>Matched Law:</strong> ${violation.act} (${violation.section})<br>
         <strong>Charge:</strong> ${violation.charge}
     `;
     
-    // Fill Confirmation Box
     document.getElementById('lbl-charge').textContent = violation.charge;
     document.getElementById('lbl-fine').textContent = `Fine: $${violation.fine_amount}.00`;
     document.getElementById('ticket-confirm-box').classList.remove('hidden');
@@ -223,15 +319,11 @@ function showWorkspace(type) {
     UI.steps.workspace.classList.remove('hidden');
     document.getElementById('workspace-inspection').classList.add('hidden');
     document.getElementById('workspace-ticket').classList.add('hidden');
-    
     document.getElementById(`workspace-${type}`).classList.remove('hidden');
-    
-    // Scroll to it
     UI.steps.workspace.scrollIntoView({ behavior: 'smooth' });
 }
 
 function renderStatusCard(status) {
-    // Map colors to CSS classes
     const bgClass = status.color === 'RED' ? 'bg-red' : 
                    status.color === 'ORANGE' ? 'bg-orange' : 'bg-green';
 
@@ -246,19 +338,8 @@ function renderStatusCard(status) {
 }
 
 function resetPatrol() {
-    UI.inputs.vrn.value = '';
-    UI.inputs.offenseDesc.value = '';
-    UI.steps.result.classList.add('hidden');
-    UI.steps.actions.classList.add('hidden');
-    UI.steps.workspace.classList.add('hidden');
-    document.getElementById('ticket-confirm-box').classList.add('hidden');
-    document.getElementById('ai-suggestion').classList.add('hidden');
-    
-    STATE.currentVehicle = null;
-    STATE.currentTicket = null;
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Reload page for full reset
+    location.reload(); 
 }
 
 function updateNetworkStatus() {
