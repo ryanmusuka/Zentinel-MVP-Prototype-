@@ -46,8 +46,9 @@ function calculateStatus(vehicle, history) {
 
     if (vehicle.is_stolen || vehicle.is_wanted || isHabitualOffender) {
         return {
+            headline: "ALERT!",
             color: "RED",
-            code: "IMPOUND_RISK",
+            code: "HIGH RISK - IMPOUND REQUIRED",
             message: vehicle.is_stolen ? "VEHICLE REPORTED STOLEN" : "HABITUAL OFFENDER - IMPOUND",
             action: "ARREST_AND_IMPOUND"
         };
@@ -60,8 +61,9 @@ function calculateStatus(vehicle, history) {
 
     if (isLicenseExpired || isInsuranceInvalid) {
         return {
+            headline: "CAUTION",
             color: "ORANGE",
-            code: "VIOLATION_DETECTED",
+            code: "VIOLATION DETECTED",
             message: isLicenseExpired ? "License Expired" : "Insurance Invalid",
             action: "ISSUE_TICKET"
         };
@@ -69,8 +71,9 @@ function calculateStatus(vehicle, history) {
 
     // PRIORITY 3: GREEN (CLEAN)
     return {
+        headline: "VEHICLE CLEAR",
         color: "GREEN",
-        code: "CLEAR",
+        code: "ALLOW TO PROCEED or conduct an inspection",
         message: "Vehicle Compliant",
         action: "PASS"
     };

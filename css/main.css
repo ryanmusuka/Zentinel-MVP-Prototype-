@@ -254,3 +254,67 @@ header {
 
 /* Helpers to hide/show specific icons */
 .hidden { display: none !important; }
+
+/* ==========================================================================
+   COMBINED WORKSPACE STYLES
+   ========================================================================== */
+
+.panel-section {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+.checklist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for checklist */
+    gap: 10px;
+}
+
+.ai-section {
+    border-left: 4px solid var(--zrp-gold);
+}
+
+.ai-input-wrapper textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 16px;
+    resize: vertical;
+}
+
+#ticket-breakdown-list {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px dashed #ccc;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.breakdown-item:last-child {
+    border-bottom: none;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--zrp-blue);
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #eef2ff;
+    border-radius: 8px;
+}

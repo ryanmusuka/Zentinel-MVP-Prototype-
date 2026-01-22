@@ -303,3 +303,14 @@ export const DB = {
         return bestMatch;
     }
 };
+
+    // Save Inspection Report to ZRP/ZINARA Cloud
+    saveInspectionResult: (report) => {
+        console.log(`[Database] SYNCING REPORT TO ZRP CLOUD...`);
+        console.log(`[Database] VRN: ${report.vrn}`);
+        console.log(`[Database] Total Fines: $${report.totalFine}`);
+        console.log(`[Database] Defect List:`, report.defects);
+        
+        // In a real app, this would be: await api.post('/inspections', report);
+        return true; 
+    }

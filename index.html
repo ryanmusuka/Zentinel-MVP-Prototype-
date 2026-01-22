@@ -17,7 +17,7 @@
         <div class="header-inner">
             <div class="brand">
                 <span class="zrp-text">ZIMBABWE REPUBLIC POLICE</span>
-                <span class="system-text">ZENTINEL APP</span>
+                <span class="system-text">ZENTINEL</span>
             </div>
             <div id="officer-badge" class="hidden">
                 <span class="status-dot"></span>
@@ -94,38 +94,82 @@
                 </div>
             </div>
 
-            <div id="step-workspace" class="hidden workspace-panel">
-                
-                <div id="workspace-inspection" class="hidden">
-                    <h3>Vehicle Inspection (SI 154)</h3>
-                    <div id="checklist-container">
-                    </div>
-                    <button id="btn-submit-inspection" class="btn-primary">SUBMIT FINDINGS</button>
-                </div>
+      <div id="step-workspace" class="hidden workspace-panel">
+    
+    <div id="workspace-inspection" class="hidden">
+        <h2 class="step-title">3. Digital Inspection (SI 154)</h2>
+        
+        <div class="panel-section">
+            <h4>Standard Checklist</h4>
+            <div id="checklist-container" class="checklist-grid"></div>
+        </div>
 
-                <div id="workspace-ticket" class="hidden">
-                    <h3>Issue Penalty Ticket</h3>
-                    
-                    <div class="ai-assistant-box">
-                        <label>Describe Offense (AI-powered search)</label>
-                        <div class="ai-input-group">
-                            <input type="text" id="offense-input" placeholder="e.g. 'broken left headlight'">
-                            <button id="btn-ai-analyze" class="btn-accent">ASK AI</button>
-                        </div>
-                        <p id="ai-suggestion" class="ai-text hidden">...</p>
-                    </div>
-
-                    <div id="ticket-confirm-box" class="hidden">
-                        <div class="ticket-preview">
-                            <span id="lbl-charge">Charge: ...</span>
-                            <span id="lbl-fine" class="fine-text">Fine: $...</span>
-                        </div>
-                        <button id="btn-pay-now" class="btn-success">COLLECT PAYMENT</button>
-                        <button id="btn-pay-later" class="btn-outline">ISSUE FORM 265 (PAY LATER)</button>
-                    </div>
-                </div>
-
+        <div class="panel-section ai-section">
+            <h4>Physical Defects (AI)</h4>
+            <div class="ai-input-wrapper">
+                <textarea id="inspect-ai-input" rows="2" placeholder="Describe defects (e.g. Broken windshield)..."></textarea>
             </div>
+        </div>
+
+        <button id="btn-add-inspection" class="btn-primary">
+            ✚ ADD FINDINGS TO TICKET
+        </button>
+        <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
+    <p style="font-size: 0.8rem; color: #666;">Need to add a traffic offense?</p>
+    <button id="btn-switch-to-ticket" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+        SWITCH TO TRAFFIC OFFENSE
+    </button>
+</div>
+    </div>
+
+    <div id="workspace-ticket" class="hidden">
+        <h2 class="step-title">3. Traffic Offense</h2>
+        
+        <div class="panel-section ai-section" style="border-left-color: var(--zrp-blue);">
+            <h4>Moving Violation</h4>
+            <div class="ai-input-wrapper">
+                <textarea id="traffic-ai-input" rows="3" placeholder="Describe offense (e.g. Speeding in school zone)..."></textarea>
+            </div>
+        </div>
+
+        <button id="btn-add-traffic" class="btn-secondary">
+            ✚ ADD OFFENSE TO TICKET
+        </button>
+        <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
+    <p style="font-size: 0.8rem; color: #666;">Need to inspect vehicle defects?</p>
+    <button id="btn-switch-to-inspect" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+        SWITCH TO INSPECTION
+    </button>
+</div>
+    </div>
+
+    <div id="action-bar-final" class="hidden" style="margin-top: 20px; text-align: center;">
+        <p style="color: green; margin-bottom: 10px;">✔ Items added to ticket.</p>
+        <button id="btn-generate-ticket" class="btn-success" style="background-color: #28a745; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; width: 100%; font-weight: 800; letter-spacing: 1px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+     GENERATE FINAL TICKET
+</button>
+    </div>
+
+    <div id="ticket-confirm-box" class="hidden">
+        <div class="divider"></div>
+        <h2 style="text-align: center; color: var(--zrp-blue);">OFFENSE SUMMARY</h2>
+        
+        <div id="ticket-breakdown-list">
+            </div>
+
+        <div class="total-row">
+            <span>TOTAL PAYABLE:</span>
+            <span id="lbl-total-fine">$0.00</span>
+        </div>
+
+        <div class="payment-actions">
+            <button id="btn-pay-now" class="btn-success">ECOCASH (PAY NOW)</button>
+            <button id="btn-pay-later" class="btn-outline">ISSUE FORM 265 (PAY LATER)</button>
+            <button id="btn-edit-ticket" class="btn-text" style="margin-top:10px; text-decoration:underline;">← Go Back / Add More</button>
+        </div>
+    </div>
+
+</div>
 
             <button id="btn-reset" class="btn-text hidden">Reset</button>
 

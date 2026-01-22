@@ -1,7 +1,7 @@
 /* ==========================================================================
    MAIN CONTROLLER (app.js)
-   Description: Wires the UI to the Logic Modules. 
-   Manages the "State Machine" of the application.
+   Status: COMPLETE FINAL
+   Features: Split Workflows, Full Biometrics, Full Offline Support
    ========================================================================== */
 
 import { Auth } from './modules/auth.js';
@@ -14,33 +14,31 @@ import { Payment } from './modules/payment.js';
 const STATE = {
     currentUser: null,
     currentVehicle: null,
-    currentTicket: null,
+    currentTicket: null, 
+    sessionOffenses: [], // The "Shopping Cart"
     isOffline: !navigator.onLine
 };
 
-// --- DOM ELEMENTS (UPDATED FOR BIOMETRICS) ---
+// --- DOM ELEMENTS ---
 const UI = {
     views: {
         login: document.getElementById('view-login'),
         patrol: document.getElementById('view-patrol')
     },
-    // NEW: References for the 2 Login Stages
     login: {
         stage1: document.getElementById('login-stage-1'),
         stage2: document.getElementById('login-stage-2'),
         bioFeedback: document.getElementById('bio-feedback')
     },
     steps: {
-        identify: document.getElementById('step-identify'),
+        workspace: document.getElementById('step-workspace'),
         result: document.getElementById('step-result'),
-        actions: document.getElementById('step-actions'),
-        workspace: document.getElementById('step-workspace')
+        actions: document.getElementById('step-actions')
     },
     inputs: {
         forceId: document.getElementById('force-id'),
         password: document.getElementById('password'),
-        vrn: document.getElementById('vrn-input'),
-        offenseDesc: document.getElementById('offense-input')
+        vrn: document.getElementById('vrn-input')
     },
     header: {
         badge: document.getElementById('officer-badge'),
@@ -54,39 +52,50 @@ const UI = {
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Login Stage 1: Credentials
+    // --- LOGIN FLOW ---
     document.getElementById('login-form').addEventListener('submit', handleCredentialCheck);
-
-    // Login Stage 2: Biometrics (NEW LISTENERS)
     document.getElementById('btn-face-scan').addEventListener('click', () => handleBiometric('face'));
     document.getElementById('btn-finger-scan').addEventListener('click', () => handleBiometric('fingerprint'));
 
-    // Search VRN Button
-    document.getElementById('btn-search').addEventListener('click', handleSearch);
+    // --- PATROL FLOW ---
+    // Search resets the session data for a new car
+    document.getElementById('btn-search').addEventListener('click', () => {
+        resetSessionData();
+        handleSearch();
+    });
+    
+    // --- WORKSPACE NAVIGATION ---
+    document.getElementById('btn-inspect').addEventListener('click', openInspectionView);
+    document.getElementById('btn-ticket').addEventListener('click', openTicketView);
 
-    // Action Buttons
-    document.getElementById('btn-inspect').addEventListener('click', startInspection);
-    document.getElementById('btn-ticket').addEventListener('click', startTicket);
+    // --- ADDING OFFENSES (The "Cart" Logic) ---
+    // 1. Add Physical Defects (Checklist + AI)
+    document.getElementById('btn-add-inspection').addEventListener('click', addInspectionToCart);
+    // 2. Add Traffic Violations (AI Only)
+    document.getElementById('btn-add-traffic').addEventListener('click', addTrafficToCart);
+
+    
+    // --- FINAL GENERATION  ---
+    document.getElementById('btn-generate-ticket').addEventListener('click', showFinalTicketPage);
+    document.getElementById('btn-edit-ticket').addEventListener('click', goBackToEditing);
+
+    // --- UTILITIES ---
     document.getElementById('btn-reset').addEventListener('click', resetPatrol);
 
-    // AI Analysis Button
-    document.getElementById('btn-ai-analyze').addEventListener('click', runAIAnalysis);
-
-    // Payment Buttons
+    // --- PAYMENT FLOW ---
     document.getElementById('btn-pay-now').addEventListener('click', () => processPayment('ecocash'));
     document.getElementById('btn-pay-later').addEventListener('click', () => processPayment('form265'));
 
-    // Network Status Listeners
+    // --- SYSTEM UTILS ---
     window.addEventListener('online', updateNetworkStatus);
     window.addEventListener('offline', updateNetworkStatus);
     updateNetworkStatus(); 
 });
 
 /* ==========================================================================
-   2. CORE WORKFLOW FUNCTIONS
+   2. LOGIN & BIOMETRICS
    ========================================================================== */
 
-// --- LOGIN PART 1: CREDENTIALS (Process 1.1) ---
 async function handleCredentialCheck(e) {
     e.preventDefault();
     const forceId = UI.inputs.forceId.value;
@@ -95,38 +104,30 @@ async function handleCredentialCheck(e) {
 
     try {
         submitBtn.textContent = "VERIFYING...";
-        
-        // 1. Check ID/Pass with Auth Module
         const userPartial = await Auth.login(forceId, password);
-        
-        // 2. Store user temporarily (not fully logged in yet)
         STATE.currentUser = userPartial;
 
-        // 3. Switch to Stage 2 (Biometrics)
         UI.login.stage1.classList.add('hidden');
         UI.login.stage2.classList.remove('hidden');
-
     } catch (error) {
         alert("ACCESS DENIED: " + error.message);
-        submitBtn.textContent = "INITIATE SESSION";
+        submitBtn.textContent = "VERIFY CREDENTIALS";
     }
 }
 
-// --- LOGIN PART 2: BIOMETRICS (Updated Flow) ---
 async function handleBiometric(type) {
-    // 1. Get Elements
+    // UI References
     const overlay = document.getElementById('bio-overlay');
     const box = document.getElementById('bio-box');
     const text = document.getElementById('bio-text');
-    
     const faceIcon = document.querySelector('.face-features');
     const fingerIcon = document.querySelector('.fingerprint-lines');
     const resultIcon = document.querySelector('.result-icon');
     const ring = document.querySelector('.scan-ring');
 
-    // 2. Reset Animation State
+    // Reset Animation State
     overlay.classList.remove('hidden'); 
-    box.className = 'bio-box'; 
+    box.className = 'bio-box'; // Reset classes
     resultIcon.classList.add('hidden'); 
     ring.classList.remove('hidden'); 
     text.textContent = type === 'face' ? "Scanning Face..." : "Scanning Print...";
@@ -141,33 +142,29 @@ async function handleBiometric(type) {
     }
 
     try {
-        // 3. Call Auth Module
         const result = await Auth.verifyBiometric(type);
 
         if (result.success) {
-            // --- SUCCESS ANIMATION ---
+            // Success Animation
             box.classList.add('success'); 
             ring.classList.add('hidden'); 
             faceIcon.classList.add('hidden');
             fingerIcon.classList.add('hidden');
-            
             resultIcon.textContent = "✔";
             resultIcon.classList.remove('hidden');
             text.textContent = "Verified!";
 
-            // 4. THE HANDOFF (Wait 1.5s then switch)
             setTimeout(() => {
-                overlay.classList.add('hidden'); // Close Popup
-                completeLogin(); // Trigger Dashboard
+                overlay.classList.add('hidden');
+                completeLogin();
             }, 1500);
         }
     } catch (error) {
-        // --- FAILURE ANIMATION ---
+        // Error Animation
         box.classList.add('error');
         ring.classList.add('hidden');
         faceIcon.classList.add('hidden');
         fingerIcon.classList.add('hidden');
-
         resultIcon.textContent = "✘";
         resultIcon.classList.remove('hidden');
         text.textContent = "Unrecognised!";
@@ -178,26 +175,21 @@ async function handleBiometric(type) {
     }
 }
 
-// --- LOGIN PART 3: FINALIZE (Force View Switch) ---
 function completeLogin() {
-    console.log("Switching to Patrol View..."); // Debugging Check
-
     const user = STATE.currentUser;
-    
-    // 1. Update Header
     UI.header.name.textContent = `${user.rank} ${user.name}`;
     UI.header.badge.classList.remove('hidden');
     
-    // 2. HARD RESET: Hide all Login parts
     document.getElementById('view-login').classList.add('hidden');
     document.getElementById('view-login').classList.remove('active-view');
-    
-    // 3. SHOW DASHBOARD
     document.getElementById('view-patrol').classList.remove('hidden');
     document.getElementById('view-patrol').classList.add('active-view');
 }
 
-// --- SEARCH VEHICLE (Process 2.0) ---
+/* ==========================================================================
+   3. VEHICLE SEARCH
+   ========================================================================== */
+
 async function handleSearch() {
     const vrn = UI.inputs.vrn.value.toUpperCase();
     if (!vrn) return alert("Please enter a VRN");
@@ -207,81 +199,235 @@ async function handleSearch() {
 
     const analysis = await Vehicle.analyze(vrn);
     STATE.currentVehicle = analysis;
-
     renderStatusCard(analysis.status);
     
     UI.steps.actions.classList.remove('hidden');
     document.getElementById('btn-reset').classList.remove('hidden');
 
-    // SCENARIO B: IMPOUND LOGIC
+    // Handle Impound Scenarios
     if (analysis.status.color === 'RED') {
-        const canOverride = STATE.currentUser.permissions.canOverrideImpound;
-        
-        if (!canOverride) {
-            document.getElementById('btn-ticket').disabled = true;
-            document.getElementById('btn-ticket').innerHTML = "🚫 TICKET BLOCKED";
+        if (!STATE.currentUser.permissions.canOverrideImpound) {
             alert("⚠️ WARNING: HIGH RISK VEHICLE. IMPOUND PROTOCOL ACTIVE.");
-        } else {
-             document.getElementById('btn-ticket').innerHTML = "⚠️ ISSUE TICKET (OVERRIDE)";
-        }
-    } else {
-        document.getElementById('btn-ticket').disabled = false;
-        document.getElementById('btn-ticket').innerHTML = "<span class='icon'>📝</span> ISSUE TICKET";
+        } 
     }
 }
 
-// --- INSPECTION (Process 3.0) ---
-function startInspection() {
-    showWorkspace('inspection');
+/* ==========================================================================
+   4. WORKFLOW: ADDING ITEMS (Silent Cart)
+   ========================================================================== */
+
+function openInspectionView() {
+    // Show Workspace, Reveal Inspection Panel, Hide Ticket Panel
+    UI.steps.workspace.classList.remove('hidden');
+    document.getElementById('workspace-inspection').classList.remove('hidden');
+    document.getElementById('workspace-ticket').classList.add('hidden');
+    document.getElementById('ticket-confirm-box').classList.add('hidden'); // Hide final page if open
+    
+    // Get Checklist Container
     const container = document.getElementById('checklist-container');
-    container.innerHTML = ''; 
+    
+    // FIX: Check children length to ensure it builds correctly, ignoring comments/whitespace
+    if (container.children.length === 0) {
+        container.innerHTML = ''; 
+        Inspection.getChecklist().forEach(item => {
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label style="display:flex; align-items:center; gap:10px; padding:5px;">
+                    <input type="checkbox" value="${item.id}" data-fine="${item.fine}" data-label="${item.label}">
+                    <span>${item.label} ($${item.fine})</span>
+                </label>`;
+            container.appendChild(div);
+        });
+    }
+    
+    // Smooth Scroll
+    UI.steps.workspace.scrollIntoView({ behavior: 'smooth' });
+}
 
-    const checklist = Inspection.getChecklist();
-    checklist.forEach(item => {
-        const div = document.createElement('div');
-        div.style.marginBottom = "10px";
-        div.innerHTML = `
-            <label style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" value="${item.id}" ${item.isCritical ? 'data-critical="true"' : ''}>
-                ${item.label} ${item.isCritical ? '<strong style="color:red">(CRITICAL)</strong>' : ''}
-            </label>
-        `;
-        container.appendChild(div);
+function openTicketView() {
+    // Show Workspace, Reveal Ticket Panel, Hide Inspection Panel
+    UI.steps.workspace.classList.remove('hidden');
+    document.getElementById('workspace-inspection').classList.add('hidden');
+    document.getElementById('workspace-ticket').classList.remove('hidden');
+    document.getElementById('ticket-confirm-box').classList.add('hidden'); // Hide final page if open
+    
+    // Smooth Scroll & Focus
+    UI.steps.workspace.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+        const input = document.getElementById('traffic-ai-input');
+        if(input) input.focus();
+    }, 500);
+}
+
+// --- ADD TO CART (Logic Only, No UI Change yet) ---
+
+async function addInspectionToCart() {
+    const btn = document.getElementById('btn-add-inspection');
+    btn.textContent = "Adding...";
+    btn.disabled = true;
+    
+    // 1. Manual Checklist
+    const checkboxes = document.querySelectorAll('#checklist-container input[type="checkbox"]:checked');
+    let newItems = [];
+
+    checkboxes.forEach(cb => {
+        newItems.push({
+            type: "Defect (Manual)",
+            desc: cb.getAttribute('data-label'),
+            fine: parseInt(cb.getAttribute('data-fine'))
+        });
+        cb.checked = false; // Uncheck after adding
     });
-}
 
-// --- AI TICKET ENGINE (Process 4.0) ---
-function startTicket() {
-    showWorkspace('ticket');
-}
+    // 2. AI Text
+    const textInput = document.getElementById('inspect-ai-input').value;
+    if (textInput.trim() !== "") {
+        const phrases = textInput.split(/ and |,/i);
+        const aiPromises = phrases.map(async (phrase) => {
+             if (phrase.trim().length < 3) return null;
+             return await AIAgent.analyze(phrase.trim());
+        });
+        
+        const results = await Promise.all(aiPromises);
+        results.forEach(res => {
+            if (res) newItems.push({ type: "Defect (AI)", desc: res.charge, fine: res.fine_amount });
+        });
+    }
 
-async function runAIAnalysis() {
-    const text = UI.inputs.offenseDesc.value;
-    if (!text) return alert("Describe the offense first.");
-
-    const suggestionText = document.getElementById('ai-suggestion');
-    suggestionText.textContent = "🤖 ZRP AI is analyzing Law Library...";
-    suggestionText.classList.remove('hidden');
-
-    const violation = await AIAgent.analyze(text);
+    addToSession(newItems);
     
+    // Reset Inputs
+    document.getElementById('inspect-ai-input').value = '';
+    btn.textContent = "✚ ADD FINDINGS TO TICKET";
+    btn.disabled = false;
+}
+
+async function addTrafficToCart() {
+    const btn = document.getElementById('btn-add-traffic');
+    const input = document.getElementById('traffic-ai-input');
+    
+    if(!input.value) return alert("Please describe the offense first.");
+
+    btn.textContent = "Analyzing...";
+    btn.disabled = true;
+
+    try {
+        const result = await AIAgent.analyze(input.value);
+        
+        const offense = [{
+            type: "Traffic Violation",
+            desc: `${result.charge} (${result.act})`,
+            fine: result.fine_amount
+        }];
+
+        addToSession(offense);
+        input.value = '';
+
+    } catch (e) {
+        alert("AI could not identify offense. Please try rephrasing.");
+    }
+
+    btn.textContent = "✚ ADD OFFENSE TO TICKET";
+    btn.disabled = false;
+}
+
+function addToSession(newItems) {
+    if (newItems.length === 0) return;
+
+    // FILTER: specific logic to prevent duplicates
+    const uniqueItems = newItems.filter(newItem => {
+        // Check if an item with the exact same description already exists
+        const exists = STATE.sessionOffenses.some(existing => 
+            existing.desc === newItem.desc
+        );
+        // Only keep it if it does NOT exist
+        return !exists;
+    });
+
+    // If everything was a duplicate, stop here
+    if (uniqueItems.length === 0) {
+        return alert("Item already exists on the ticket list.");
+    }
+
+    // Add only the unique items to the state
+    STATE.sessionOffenses = [...STATE.sessionOffenses, ...uniqueItems];
+    
+    // Reveal the Generate button
+    document.getElementById('action-bar-final').classList.remove('hidden');
+    
+    // Professional Feedback
+    if (uniqueItems.length < newItems.length) {
+        alert(`Added ${uniqueItems.length} new item(s). Duplicates were excluded.`);
+    } else {
+        alert(`Added ${uniqueItems.length} item(s) to ticket compilation.`);
+    }
+}
+
+/* ==========================================================================
+   5. FINAL STAGE: GENERATE & PAY
+   ========================================================================== */
+
+function showFinalTicketPage() {
+    // 1. Hide the Workspaces & Action Bar
+    document.getElementById('workspace-inspection').classList.add('hidden');
+    document.getElementById('workspace-ticket').classList.add('hidden');
+    document.getElementById('action-bar-final').classList.add('hidden');
+    
+    // 2. Build the List
+    const listContainer = document.getElementById('ticket-breakdown-list');
+    listContainer.innerHTML = '';
+    
+    STATE.sessionOffenses.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'breakdown-item';
+        div.style.animation = "fadeIn 0.5s";
+        div.innerHTML = `
+            <span>
+                <small style="color:#b8860b; font-weight:bold; font-size:0.75rem;">${item.type}</small><br>
+                ${item.desc}
+            </span>
+            <strong>$${item.fine}</strong>
+        `;
+        listContainer.appendChild(div);
+    });
+
+    // Update Total
+    const total = STATE.sessionOffenses.reduce((sum, item) => sum + item.fine, 0);
+    document.getElementById('lbl-total-fine').textContent = `$${total}.00`;
+
+    // 3. Show Final Page
+    const finalBox = document.getElementById('ticket-confirm-box');
+    finalBox.classList.remove('hidden');
+    finalBox.scrollIntoView({ behavior: 'smooth' });
+
+    // 4. Create Ticket Object
     STATE.currentTicket = {
-        ...violation,
-        vrn: STATE.currentVehicle.data ? STATE.currentVehicle.data.vrn : UI.inputs.vrn.value,
-        amount: violation.fine_amount
+        vrn: STATE.currentVehicle.data.vrn,
+        amount: total,
+        offenses: STATE.sessionOffenses
     };
-
-    suggestionText.innerHTML = `
-        <strong>Matched Law:</strong> ${violation.act} (${violation.section})<br>
-        <strong>Charge:</strong> ${violation.charge}
-    `;
-    
-    document.getElementById('lbl-charge').textContent = violation.charge;
-    document.getElementById('lbl-fine').textContent = `Fine: $${violation.fine_amount}.00`;
-    document.getElementById('ticket-confirm-box').classList.remove('hidden');
 }
 
-// --- PAYMENT (Process 6.0) ---
+function goBackToEditing() {
+    // Hides Final Page, Shows Workspace again (defaulting to Inspection view)
+    document.getElementById('ticket-confirm-box').classList.add('hidden');
+    openInspectionView();
+    // Show the generate button again since we still have items
+    document.getElementById('action-bar-final').classList.remove('hidden');
+}
+
+/* ==========================================================================
+   6. HELPERS
+   ========================================================================== */
+
+function resetSessionData() {
+    STATE.sessionOffenses = [];
+    document.getElementById('action-bar-final').classList.add('hidden');
+    document.getElementById('ticket-breakdown-list').innerHTML = '';
+    document.getElementById('lbl-total-fine').textContent = '$0.00';
+    document.getElementById('ticket-confirm-box').classList.add('hidden');
+}
+
 async function processPayment(method) {
     if (!STATE.currentTicket) return;
 
@@ -291,12 +437,9 @@ async function processPayment(method) {
 
     try {
         const result = await Payment.processPayment(STATE.currentTicket, method, "0771234567");
-        
         if (result.success) {
             alert(`SUCCESS: ${result.message}\nRef: ${result.receiptRef}`);
             resetPatrol();
-        } else {
-            alert("Payment Failed. Try manual method.");
         }
     } catch (e) {
         alert("Error: " + e.message);
@@ -305,31 +448,12 @@ async function processPayment(method) {
     }
 }
 
-/* ==========================================================================
-   3. HELPER FUNCTIONS
-   ========================================================================== */
-
-function switchView(viewName) {
-    Object.values(UI.views).forEach(el => el.classList.add('hidden'));
-    UI.views[viewName].classList.remove('hidden');
-    UI.views[viewName].classList.add('active-view');
-}
-
-function showWorkspace(type) {
-    UI.steps.workspace.classList.remove('hidden');
-    document.getElementById('workspace-inspection').classList.add('hidden');
-    document.getElementById('workspace-ticket').classList.add('hidden');
-    document.getElementById(`workspace-${type}`).classList.remove('hidden');
-    UI.steps.workspace.scrollIntoView({ behavior: 'smooth' });
-}
-
 function renderStatusCard(status) {
     const bgClass = status.color === 'RED' ? 'bg-red' : 
                    status.color === 'ORANGE' ? 'bg-orange' : 'bg-green';
-
     UI.steps.result.innerHTML = `
         <div class="status-card ${bgClass}">
-            <h2>${status.color}</h2>
+            <h2>${status.headline || status.color}</h2>
             <p>${status.message}</p>
             <small style="display:block; margin-top:10px; opacity:0.8">${status.code}</small>
         </div>
@@ -338,19 +462,45 @@ function renderStatusCard(status) {
 }
 
 function resetPatrol() {
-    // Reload page for full reset
-    location.reload(); 
+    // 1. Reset Data
+    STATE.currentVehicle = null;
+    STATE.currentTicket = null;
+    resetSessionData(); // Clears the cart
+
+    // 2. Clear UI Inputs
+    UI.inputs.vrn.value = '';
+    document.getElementById('checklist-container').innerHTML = '';
+    
+    const inspectInput = document.getElementById('inspect-ai-input');
+    if(inspectInput) inspectInput.value = '';
+    
+    const trafficInput = document.getElementById('traffic-ai-input');
+    if(trafficInput) trafficInput.value = '';
+
+    // 3. Hide Views
+    UI.steps.result.classList.add('hidden');
+    UI.steps.actions.classList.add('hidden');
+    UI.steps.workspace.classList.add('hidden');
+    
+    // 4. Hide Reset Button
+    document.getElementById('btn-reset').classList.add('hidden');
+
+    // 5. Scroll to Top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    console.log("[System] Ready for next vehicle.");
 }
 
 function updateNetworkStatus() {
     STATE.isOffline = !navigator.onLine;
-    
     if (STATE.isOffline) {
         UI.header.dot.style.background = 'grey';
         UI.header.name.textContent += ' (OFFLINE)';
-        console.log("[System] Network Lost. Switching to Offline Protocols.");
     } else {
         UI.header.dot.style.background = 'var(--green)';
-        if (STATE.currentUser) UI.header.name.textContent = `${STATE.currentUser.rank} ${STATE.currentUser.name}`;
+        // Restore name if coming back online
+        if (STATE.currentUser) {
+            UI.header.name.textContent = `${STATE.currentUser.rank} ${STATE.currentUser.name}`;
+        }
     }
 }
