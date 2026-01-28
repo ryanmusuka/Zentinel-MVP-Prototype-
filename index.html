@@ -6,7 +6,7 @@
     <title>Zentinel | ZRP Digital Enforcement</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Caveat:wght@700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/ticket.css">
@@ -29,41 +29,41 @@
     </header>
 
     <main class="app-container">
+        
         <section id="view-login" class="active-view">
-    <div class="login-panel">
-        <div class="crest-placeholder">ZRP</div>
-        <h2 style="color:var(--zrp-blue); margin-bottom: 5px;">OFFICER LOGIN</h2>
-        <p style="color:#666; font-size:12px; margin-bottom:20px;">Restricted Access: ZRP Traffic Patrol Officers Only.</p>
+            <div class="login-panel">
+                <div class="crest-placeholder">ZRP</div>
+                <h2 style="color:var(--zrp-blue); margin-bottom: 5px;">OFFICER LOGIN</h2>
+                <p style="color:#666; font-size:12px; margin-bottom:20px;">Restricted Access: ZRP Traffic Patrol Officers Only.</p>
 
-        <div id="login-stage-1">
-            <form id="login-form">
-                <label>FORCE NUMBER</label>
-                <input type="text" id="force-id" placeholder="e.g. 9921" required>
-                
-                <label>PASSWORD</label>
-                <input type="password" id="password" placeholder="••••••••" required>
-                
-                <button type="submit" class="btn-primary" style="margin-top:15px;">
-                    VERIFY CREDENTIALS
-                </button>
-            </form>
-        </div>
+                <div id="login-stage-1">
+                    <form id="login-form">
+                        <label>FORCE NUMBER</label>
+                        <input type="text" id="force-id" placeholder="e.g. 9921" required>
+                        
+                        <label>PASSWORD</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                        
+                        <button type="submit" class="btn-primary" style="margin-top:15px;">
+                            VERIFY CREDENTIALS
+                        </button>
+                    </form>
+                </div>
 
-        <div id="login-stage-2" class="hidden" style="text-align: center;">
-            <p style="color: green; font-weight: bold; margin-bottom: 15px;"> Credentials Verified</p>
-            <p style="font-size: 14px; margin-bottom: 20px;">Complete biometric authentication to proceed.</p>
-            
-            <button id="btn-face-scan" class="btn-secondary" style="width:100%; margin-bottom:10px;">
-                <span>👤</span> SCAN FACE
-            </button>
-            
-            <button id="btn-finger-scan" class="btn-secondary" style="width:100%;">
-                <span>☝️</span> SCAN FINGERPRINT
-            </button>
-        </div>
-
-    </div>
-</section>
+                <div id="login-stage-2" class="hidden" style="text-align: center;">
+                    <p style="color: green; font-weight: bold; margin-bottom: 15px;"> Credentials Verified</p>
+                    <p style="font-size: 14px; margin-bottom: 20px;">Complete biometric authentication to proceed.</p>
+                    
+                    <button id="btn-face-scan" class="btn-secondary" style="width:100%; margin-bottom:10px;">
+                        <span>👤</span> SCAN FACE
+                    </button>
+                    
+                    <button id="btn-finger-scan" class="btn-secondary" style="width:100%;">
+                        <span>☝️</span> SCAN FINGERPRINT
+                    </button>
+                </div>
+            </div>
+        </section>
 
         <section id="view-patrol" class="hidden">
             <div class="step-container" id="step-identify">
@@ -75,6 +75,7 @@
             </div>
             
             <div id="step-result" class="hidden"></div>
+             
              <div id="step-actions" class="hidden action-panel">
                  <h2 class="step-title">2. Select Procedure</h2>
                 <div class="grid-buttons">
@@ -86,6 +87,7 @@
                     </button>
                 </div>
              </div>
+
              <div id="step-workspace" class="hidden workspace-panel">
                  <div id="workspace-inspection" class="hidden">
                       <h2 class="step-title">3. Digital Inspection (SI 154)</h2>
@@ -105,12 +107,13 @@
                             ✚ ADD FINDINGS TO TICKET
                         </button>
                         <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
-                    <p style="font-size: 0.8rem; color: #666;">Need to add a traffic offense?</p>
-                    <button id="btn-switch-to-ticket" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                        SWITCH TO TRAFFIC OFFENSE
-                    </button>
-                </div>
+                            <p style="font-size: 0.8rem; color: #666;">Need to add a traffic offense?</p>
+                            <button id="btn-switch-to-ticket" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                                SWITCH TO TRAFFIC OFFENSE
+                            </button>
+                        </div>
                   </div>
+                  
                   <div id="workspace-ticket" class="hidden">
                       <h2 class="step-title">3. Traffic Offense</h2>
         
@@ -125,11 +128,11 @@
                             ✚ ADD OFFENSE TO TICKET
                         </button>
                         <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
-                    <p style="font-size: 0.8rem; color: #666;">Need to inspect vehicle defects?</p>
-                    <button id="btn-switch-to-inspect" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                        SWITCH TO INSPECTION
-                    </button>
-                </div>
+                            <p style="font-size: 0.8rem; color: #666;">Need to inspect vehicle defects?</p>
+                            <button id="btn-switch-to-inspect" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                                SWITCH TO INSPECTION
+                            </button>
+                        </div>
                   </div>
 
                  <div id="action-bar-final" class="hidden" style="margin-top: 20px; text-align: center;">
@@ -158,176 +161,129 @@
             </div>
         </section>
 
-
         <section id="view-final-ticket" class="hidden">
-            
-            <div class="form-scroll-container">
-                <div class="paper-form-265">
-                    
-                    <div class="f265-header">
-                        <div class="f265-meta-left">COURT FORMS Z69J</div>
-                        <div class="f265-logo">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Zimbabwe_Republic_Police_Logo.png" alt="ZRP">
-                            <div class="zrp-title">ZIMBABWE REPUBLIC POLICE</div>
-                        </div>
-                        <div class="f265-serial">1264615 <span class="serial-suffix">A</span></div>
+            <div class="ticket-wrapper">
+                <div class="watermark">DEMO UNOFFICIAL</div>
+                
+                <div class="ticket-header">
+                    <div class="zrp-logo"><img src="assets/zrp-logo.png" alt="ZRP" onerror="this.style.display='none'"></div>
+                    <div class="header-text">
+                        <h3>ZIMBABWE REPUBLIC POLICE</h3>
+                        <h1>ADMISSION OF GUILT TRAFFIC FINE</h1>
+                        <small>COURT FORMS: Z69J</small>
                     </div>
+                    <div class="ticket-number">
+                        <span class="red-text">1264615 A</span>
+                    </div>
+                </div>
 
-                    <h1 class="f265-title">ADMISSION OF GUILT TRAFFIC FINE</h1>
-
-                    <div class="f265-top-grid">
-                        <div class="f265-warning">
-                            <strong>"WARNING"</strong>
-                            <p>YOU SHOULD NOT PAY A DEPOSIT FINE OR SIGN AN ADMISSION OF GUILT UNLESS YOU ADMIT THAT YOU ARE GUILTY OF THE OFFENCE(S) CHARGED...</p>
-                        </div>
-                        <div class="f265-station-info">
-                            <div class="f265-row">
-                                <label>Station:</label> 
-                                <span class="handwritten" id="f265-station">HARARE CENTRAL</span>
+                <table class="ticket-table">
+                    <tr>
+                        <td colspan="2" class="field-box">
+                            <span class="label">Station:</span>
+                            <div id="f265-station" class="fill-in">---</div>
+                        </td>
+                        <td colspan="2" class="field-box">
+                            <span class="label">Arresting Detail (Name/Rank/No):</span>
+                            <div id="f265-officer" class="fill-in">---</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="field-box">
+                            <span class="label">Surname of person admitting guilt:</span>
+                            <div id="f265-surname" class="fill-in">---</div>
+                            <span class="label" style="margin-left:20px;">Other names:</span>
+                            <div id="f265-names" class="fill-in">---</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="field-box">
+                            <span class="label">Residential Address:</span>
+                            <div id="f265-address" class="fill-in">---</div>
+                        </td>
+                        <td class="field-box">
+                            <span class="label">VRN / Make:</span>
+                            <div id="f265-vrn" class="fill-in">---</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="field-box">
+                            <span class="label">Charge (section and statutory enactment):</span>
+                            <div class="fill-in">SEC 4(1) OF THE R.T.A</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="field-box description-box">
+                            <span class="label">Brief description of offence(s):</span>
+                            <div id="f265-desc" class="fill-in-multi"></div>
+                            
+                            <div class="date-time-row">
+                                <span>Date: <strong id="f265-date" class="blue-ink">---</strong></span>
+                                <span>Time: <strong id="f265-time" class="blue-ink">---</strong></span>
+                                <span>Place: <strong class="blue-ink">HARARE</strong></span>
                             </div>
-                            <div class="f265-row">
-                                <label>Arresting detail No:</label> 
-                                <span class="handwritten" id="f265-force-num">9921</span>
-                                <label>Rank:</label>
-                                <span class="handwritten">CST</span>
-                            </div>
-                            <div class="f265-row">
-                                <label>Name:</label>
-                                <span class="handwritten" id="f265-officer-name">DIZA</span>
-                            </div>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="field-box right-align">
+                            <span class="label">AMOUNT OF DEPOSIT FINE FIXED BY PRESCRIBED OFFICER:</span>
+                        </td>
+                        <td class="field-box fine-box">
+                            <span class="currency">$</span>
+                            <span id="f265-total" class="amount blue-ink">0.00</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="legal-text">
+                            I, the above named, do hereby admit that I am guilty of the said offence(s) and wish to deposit the sum of money fixed.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="field-box">
+                            <span class="label">Witnessed by (Officer):</span>
+                            <div id="f265-sig-officer" class="fill-in signature-font">---</div>
+                        </td>
+                        <td colspan="2" class="field-box">
+                            <span class="label">Signed (Offender):</span>
+                            <div class="fill-in signature-font">Digitally Signed via Biometric</div>
+                        </td>
+                    </tr>
+                </table>
 
-                    <div class="f265-personal-grid">
-                        <div class="f265-field full-width">
-                            <label>Surname of person admitting guilt:</label>
-                            <span class="handwritten" id="f265-surname">UNKNOWN (DRIVER)</span>
-                        </div>
-                        <div class="f265-field full-width">
-                            <label>Other names:</label>
-                            <span class="handwritten" id="f265-names">---</span>
-                        </div>
-                        <div class="f265-field half-width">
-                            <label>Residential Address:</label>
-                            <span class="handwritten">NOT PROVIDED</span>
-                        </div>
-                        <div class="f265-field half-width">
-                            <label>Business Address:</label>
-                            <span class="handwritten">N/A</span>
-                        </div>
-                        <div class="f265-field quarter-width border-left">
-                            <label>Date of birth:</label>
-                            <span class="handwritten">--/--/--</span>
-                        </div>
-                        <div class="f265-field quarter-width border-left">
-                            <label>Place of birth:</label>
-                            <span class="handwritten">HRE</span>
-                        </div>
-                    </div>
-
-                    <div class="f265-charge-section">
-                        <div class="f265-row">
-                            <label>Charge (section and statutory enactment):</label>
-                            <span class="handwritten" id="f265-charge-code">SEC 76 RTA</span>
-                        </div>
-                        <div class="f265-row">
-                            <label>Brief description of offence(s):</label>
-                            <span class="handwritten" id="f265-desc">SPEEDING / VARIOUS OFFENSES</span>
-                        </div>
-                        <div class="f265-row three-col">
-                            <div><label>Date:</label> <span class="handwritten" id="f265-date">28/01/26</span></div>
-                            <div><label>Time:</label> <span class="handwritten" id="f265-time">10:45</span></div>
-                            <div><label>Place:</label> <span class="handwritten">HARARE</span></div>
-                        </div>
-                    </div>
-
-                    <div class="f265-fine-row">
-                        <label>AMOUNT OF DEPOSIT FINE FIXED BY PRESCRIBED OFFICER:</label>
-                        <div class="fine-box handwritten" id="f265-amount">$00.00</div>
-                    </div>
-
-                    <div class="f265-declaration">
-                        <p>I, the above named, having been summoned/warned to appear in court... do hereby admit that I am guilty of the said offence(s)...</p>
-                    </div>
-
-                    <div class="f265-signatures">
-                        <div class="sig-block">
-                            <label>Witnessed by:</label>
-                            <div class="handwritten">994141M CST DIZA</div>
-                        </div>
-                        <div class="sig-block right">
-                            <div class="fake-sig">Signature</div>
-                            <label>(Director/Manager/Secretary)</label>
-                        </div>
-                    </div>
-
-                    <div class="f265-receipt">
-                        <div class="rec-row">
-                            <label>RECEIVED the sum of (amount in words):</label>
-                            <span class="handwritten" id="f265-words">FIFTEEN DOLLARS</span>
-                        </div>
-                        <div class="rec-sig-row">
-                            <div>
-                                <label>Witnessed by Number:</label> <span class="handwritten">087384G</span>
-                                <label>Rank:</label> <span class="handwritten">CST</span>
-                            </div>
-                            <div>
-                                <label>Name:</label> <span class="handwritten">CHANDIGERE</span>
-                            </div>
-                            <div class="official-sig">
-                                <label>Signature of receiving official:</label>
-                                <span class="handwritten sig-style">Diza.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="f265-footer">
-                        <div>DRIVER'S LICENCE FOR ENDORSEMENT</div>
-                        <div>No.: <span class="handwritten">-----</span></div>
-                        <div>Date of Issue: <span class="handwritten">-----</span></div>
-                        <div>Place of Issue: <span class="handwritten">-----</span></div>
-                    </div>
-
-                </div> <div class="final-actions-container">
-                    <button id="btn-final-pay-online" class="btn-success big-btn">
-                        <span></span> PAY ONLINE
-                    </button>
-                    <button id="btn-final-print" class="btn-outline big-btn">
-                        <span></span> PRINT / ISSUE FORM 265
-                    </button>
-                    <button id="btn-back-to-summary" class="btn-text">← Back to Summary</button>
+                <div class="final-actions no-print">
+                    <button id="btn-final-pay-online" class="btn-primary"> PAY NOW (ONLINE)</button>
+                    <button id="btn-final-print" class="btn-secondary">PRINT TICKET</button>
+                    <button id="btn-back-to-summary" class="btn-text">Modify / Go Back</button>
                 </div>
             </div>
-
-            <div id="payment-success-msg" class="hidden">
-                 <div class="success-content">
-                    <div class="big-check">✔</div>
-                    <h2 id="success-title">PAYMENT SUCCESSFUL</h2>
-                    <p id="success-desc">Receipt sent to driver.</p>
-                    <button id="btn-finish-patrol" class="btn-primary">RETURN TO PATROL</button>
-                </div>
-            </div>
-
         </section>
+
     </main>
 
-    <div id="bio-overlay" class="hidden">
-    <div class="bio-box" id="bio-box">
-        
-        <div class="bio-scanner">
-            <div class="scan-ring"></div>
-            <div class="scan-icon face-features">
-                <div class="eye left"></div>
-                <div class="eye right"></div>
-                <div class="mouth"></div>
-            </div>
-            <div class="scan-icon fingerprint-lines hidden"></div>
-            <div class="scan-icon result-icon hidden"></div>
+    <div id="payment-success-msg" class="hidden">
+        <div class="success-content">
+            <div class="big-check">✔</div>
+            <h2>PAYMENT SUCCESSFUL</h2>
+            <p>Receipt #992211 sent to driver.</p>
+            <button id="btn-finish-patrol" class="btn-primary">START NEW SEARCH</button>
         </div>
-
-        <h3 id="bio-text">Authenticating...</h3>
     </div>
-</div>
+    
+    <div id="bio-overlay" class="hidden">
+        <div class="bio-box" id="bio-box">
+            <div class="bio-scanner">
+                <div class="scan-ring"></div>
+                <div class="scan-icon face-features">
+                    <div class="eye left"></div>
+                    <div class="eye right"></div>
+                    <div class="mouth"></div>
+                </div>
+                <div class="scan-icon fingerprint-lines hidden"></div>
+                <div class="scan-icon result-icon hidden"></div>
+            </div>
+            <h3 id="bio-text">Authenticating...</h3>
+        </div>
+    </div>
 
     <script type="module" src="js/app.js"></script>
 </body>

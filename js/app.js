@@ -25,7 +25,7 @@ const UI = {
     views: {
         login: document.getElementById('view-login'),
         patrol: document.getElementById('view-patrol'),
-        final: document.getElementById('view-final-ticket') // Added Final View
+        final: document.getElementById('view-final-ticket')
     },
     login: {
         stage1: document.getElementById('login-stage-1'),
@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnFinger) btnFinger.addEventListener('click', () => handleBiometric('fingerprint'));
 
     // --- PATROL FLOW ---
-    // Search resets the session data for a new car
     document.getElementById('btn-search').addEventListener('click', () => {
         resetSessionData();
         handleSearch();
@@ -75,39 +74,36 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-inspect').addEventListener('click', openInspectionView);
     document.getElementById('btn-ticket').addEventListener('click', openTicketView);
 
-    // --- ADDING OFFENSES (The "Cart" Logic) ---
-    // 1. Add Physical Defects (Checklist + AI)
+    // --- ADDING OFFENSES ---
     document.getElementById('btn-add-inspection').addEventListener('click', addInspectionToCart);
-    // 2. Add Traffic Violations (AI Only)
     document.getElementById('btn-add-traffic').addEventListener('click', addTrafficToCart);
 
     // --- NEW NAVIGATION LISTENERS ---
     document.getElementById('btn-switch-to-ticket').addEventListener('click', openTicketView);
     document.getElementById('btn-switch-to-inspect').addEventListener('click', openInspectionView);
     
-    // --- FINAL GENERATION (Summary Box) ---
+    // --- FINAL GENERATION ---
     document.getElementById('btn-generate-ticket').addEventListener('click', showSummaryBox);
     
-    // --- NEW: PROCEED TO FINAL FORM (Form 265) ---
+    // --- PROCEED TO FINAL FORM ---
     const btnProceed = document.getElementById('btn-proceed-to-final');
     if (btnProceed) btnProceed.addEventListener('click', handleProceedToFinal);
 
-    // --- NEW: FINAL FORM ACTIONS ---
+    // --- FINAL FORM ACTIONS (FIXED) ---
     const btnPayOnline = document.getElementById('btn-final-pay-online');
     if (btnPayOnline) btnPayOnline.addEventListener('click', () => processFinalPayment('online'));
 
     const btnPrint = document.getElementById('btn-final-print');
-    if (btnPrint) btnPrint.addEventListener('click', () => processFinalPayment('print'));
+    // FIX: Directly call window.print() for the browser print dialog
+    if (btnPrint) btnPrint.addEventListener('click', () => window.print());
 
     const btnBackSummary = document.getElementById('btn-back-to-summary');
     if (btnBackSummary) btnBackSummary.addEventListener('click', closeFinalTicket);
 
-    // FIX: Using resetPatrol instead of reload to keep user logged in
     const btnFinish = document.getElementById('btn-finish-patrol');
     if (btnFinish) btnFinish.addEventListener('click', resetPatrol);
 
     // --- UTILITIES ---
-    // UPDATED: Fixed ID to match your HTML (btn-reset-all)
     const btnReset = document.getElementById('btn-reset-all') || document.getElementById('btn-reset');
     if (btnReset) btnReset.addEventListener('click', resetPatrol);
 
@@ -141,7 +137,6 @@ async function handleCredentialCheck(e) {
 }
 
 async function handleBiometric(type) {
-    // UI References
     const overlay = document.getElementById('bio-overlay');
     const box = document.getElementById('bio-box');
     const text = document.getElementById('bio-text');
@@ -150,14 +145,12 @@ async function handleBiometric(type) {
     const resultIcon = document.querySelector('.result-icon');
     const ring = document.querySelector('.scan-ring');
 
-    // Reset Animation State
     overlay.classList.remove('hidden'); 
-    box.className = 'bio-box'; // Reset classes
+    box.className = 'bio-box'; 
     resultIcon.classList.add('hidden'); 
     ring.classList.remove('hidden'); 
     text.textContent = type === 'face' ? "Scanning Face..." : "Scanning Print...";
 
-    // Toggle Icons
     if (type === 'face') {
         faceIcon.classList.remove('hidden');
         fingerIcon.classList.add('hidden');
@@ -170,7 +163,6 @@ async function handleBiometric(type) {
         const result = await Auth.verifyBiometric(type);
 
         if (result.success) {
-            // Success Animation
             box.classList.add('success'); 
             ring.classList.add('hidden'); 
             faceIcon.classList.add('hidden');
@@ -185,7 +177,6 @@ async function handleBiometric(type) {
             }, 1500);
         }
     } catch (error) {
-        // Error Animation
         box.classList.add('error');
         ring.classList.add('hidden');
         faceIcon.classList.add('hidden');
@@ -228,7 +219,6 @@ async function handleSearch() {
     
     UI.steps.actions.classList.remove('hidden');
 
-    // Handle Impound Scenarios
     if (analysis.status.color === 'RED') {
         if (!STATE.currentUser.permissions.canOverrideImpound) {
             alert("⚠️ WARNING: HIGH RISK VEHICLE. IMPOUND PROTOCOL ACTIVE.");
@@ -237,20 +227,16 @@ async function handleSearch() {
 }
 
 /* ==========================================================================
-   4. WORKFLOW: ADDING ITEMS (Silent Cart)
+   4. WORKFLOW: ADDING ITEMS
    ========================================================================== */
 
 function openInspectionView() {
-    // Show Workspace, Reveal Inspection Panel, Hide Ticket Panel
     UI.steps.workspace.classList.remove('hidden');
     document.getElementById('workspace-inspection').classList.remove('hidden');
     document.getElementById('workspace-ticket').classList.add('hidden');
-    document.getElementById('ticket-confirm-box').classList.add('hidden'); // Hide final page if open
+    document.getElementById('ticket-confirm-box').classList.add('hidden'); 
     
-    // Get Checklist Container
     const container = document.getElementById('checklist-container');
-    
-    // FIX: Check children length to ensure it builds correctly, ignoring comments/whitespace
     if (container.children.length === 0) {
         container.innerHTML = ''; 
         Inspection.getChecklist().forEach(item => {
@@ -264,18 +250,15 @@ function openInspectionView() {
         });
     }
     
-    // Smooth Scroll
     UI.steps.workspace.scrollIntoView({ behavior: 'smooth' });
 }
 
 function openTicketView() {
-    // Show Workspace, Reveal Ticket Panel, Hide Inspection Panel
     UI.steps.workspace.classList.remove('hidden');
     document.getElementById('workspace-inspection').classList.add('hidden');
     document.getElementById('workspace-ticket').classList.remove('hidden');
-    document.getElementById('ticket-confirm-box').classList.add('hidden'); // Hide final page if open
+    document.getElementById('ticket-confirm-box').classList.add('hidden'); 
     
-    // Smooth Scroll & Focus
     UI.steps.workspace.scrollIntoView({ behavior: 'smooth' });
     setTimeout(() => {
         const input = document.getElementById('traffic-ai-input');
@@ -283,14 +266,11 @@ function openTicketView() {
     }, 500);
 }
 
-// --- ADD TO CART (Logic Only, No UI Change yet) ---
-
 async function addInspectionToCart() {
     const btn = document.getElementById('btn-add-inspection');
     btn.textContent = "Adding...";
     btn.disabled = true;
     
-    // 1. Manual Checklist
     const checkboxes = document.querySelectorAll('#checklist-container input[type="checkbox"]:checked');
     let newItems = [];
 
@@ -300,10 +280,9 @@ async function addInspectionToCart() {
             desc: cb.getAttribute('data-label'),
             fine: parseInt(cb.getAttribute('data-fine'))
         });
-        cb.checked = false; // Uncheck after adding
+        cb.checked = false; 
     });
 
-    // 2. AI Text
     const textInput = document.getElementById('inspect-ai-input').value;
     if (textInput.trim() !== "") {
         const phrases = textInput.split(/ and |,/i);
@@ -319,8 +298,6 @@ async function addInspectionToCart() {
     }
 
     addToSession(newItems);
-    
-    // Reset Inputs
     document.getElementById('inspect-ai-input').value = '';
     btn.textContent = "✚ ADD FINDINGS TO TICKET";
     btn.disabled = false;
@@ -358,28 +335,21 @@ async function addTrafficToCart() {
 function addToSession(newItems) {
     if (newItems.length === 0) return;
 
-    // FILTER: specific logic to prevent duplicates
     const uniqueItems = newItems.filter(newItem => {
-        // Check if an item with the exact same description already exists
         const exists = STATE.sessionOffenses.some(existing => 
             existing.desc === newItem.desc
         );
-        // Only keep it if it does NOT exist
         return !exists;
     });
 
-    // If everything was a duplicate, stop here
     if (uniqueItems.length === 0) {
         return alert("Item already exists on the ticket list.");
     }
 
-    // Add only the unique items to the state
     STATE.sessionOffenses = [...STATE.sessionOffenses, ...uniqueItems];
     
-    // Reveal the Generate button
     document.getElementById('action-bar-final').classList.remove('hidden');
     
-    // Professional Feedback
     if (uniqueItems.length < newItems.length) {
         alert(`Added ${uniqueItems.length} new item(s). Duplicates were excluded.`);
     } else {
@@ -392,18 +362,16 @@ function addToSession(newItems) {
    ========================================================================== */
 
 function showSummaryBox() {
-    // 1. Hide the Workspaces & Action Bar
     document.getElementById('workspace-inspection').classList.add('hidden');
     document.getElementById('workspace-ticket').classList.add('hidden');
     document.getElementById('action-bar-final').classList.add('hidden');
     
-    // 2. Build the List
     const listContainer = document.getElementById('ticket-breakdown-list');
     listContainer.innerHTML = '';
     
     STATE.sessionOffenses.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = 'summary-item'; // Matches CSS in main.css/components.css
+        div.className = 'summary-item'; 
         div.style.display = 'flex';
         div.style.justifyContent = 'space-between';
         div.style.borderBottom = '1px dashed #ccc';
@@ -416,42 +384,33 @@ function showSummaryBox() {
         listContainer.appendChild(div);
     });
 
-    // Update Total
     const total = STATE.sessionOffenses.reduce((sum, item) => sum + item.fine, 0);
     document.getElementById('lbl-total-fine').textContent = `$${total}.00`;
 
-    // 3. Show Summary Box
     const finalBox = document.getElementById('ticket-confirm-box');
     finalBox.classList.remove('hidden');
     finalBox.scrollIntoView({ behavior: 'smooth' });
 }
 
-// --- IN js/app.js ---
-
 function handleProceedToFinal() {
-    // 1. Gather all necessary data from STATE
     const ticketData = {
-        // Officer Data (From Login)
         officer: {
-            name: STATE.currentUser.name,
-            rank: STATE.currentUser.rank,
-            forceId: STATE.currentUser.forceId,
-            station: "HRE CENTRAL TRAFFIC" // You can store this in Auth if needed
+            name: STATE.currentUser ? STATE.currentUser.name : "OFFICER",
+            rank: STATE.currentUser ? STATE.currentUser.rank : "CST",
+            forceId: STATE.currentUser ? STATE.currentUser.forceId : "9921",
+            station: "HRE CENTRAL TRAFFIC" 
         },
-        // Vehicle/Offender Data (From Search Results)
         offender: {
             name: STATE.currentVehicle ? STATE.currentVehicle.data.owner : "UNKNOWN DRIVER",
-            address: "1 Mock Address Ave, Harare, Zimbabwe", // Mocked as Zinara usually provides this
+            address: "1 Mock Address Ave, Harare, Zimbabwe",
             vrn: UI.inputs.vrn.value || "Unknown",
             make: STATE.currentVehicle ? STATE.currentVehicle.data.make : "N/A"
         },
-        // The Crime
         offenses: STATE.sessionOffenses,
         total: STATE.sessionOffenses.reduce((sum, item) => sum + item.fine, 0),
         dateTime: new Date()
     };
 
-    // 2. Call the generator
     openFinalTicket(ticketData);
 }
 
@@ -481,12 +440,10 @@ function renderStatusCard(status) {
 }
 
 function resetPatrol() {
-    // 1. Reset Data
     STATE.currentVehicle = null;
     STATE.currentTicket = null;
-    resetSessionData(); // Clears the cart
+    resetSessionData(); 
 
-    // 2. Clear UI Inputs
     UI.inputs.vrn.value = '';
     document.getElementById('checklist-container').innerHTML = '';
     
@@ -496,21 +453,17 @@ function resetPatrol() {
     const trafficInput = document.getElementById('traffic-ai-input');
     if(trafficInput) trafficInput.value = '';
     
-    // Hide payment success message if it's currently showing
     const successMsg = document.getElementById('payment-success-msg');
     if(successMsg) successMsg.classList.add('hidden');
 
-    // 3. Hide All Views
     UI.steps.result.classList.add('hidden');
     UI.steps.actions.classList.add('hidden');
     UI.steps.workspace.classList.add('hidden');
     document.getElementById('ticket-confirm-box').classList.add('hidden');
     if (UI.views.final) UI.views.final.classList.add('hidden');
     
-    // Ensure Patrol view is visible (Back to Search)
     UI.views.patrol.classList.remove('hidden');
 
-    // 5. Scroll to Top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     console.log("[System] Ready for next vehicle.");
@@ -523,7 +476,6 @@ function updateNetworkStatus() {
         UI.header.name.textContent += ' (OFFLINE)';
     } else {
         UI.header.dot.style.background = 'var(--green)';
-        // Restore name if coming back online
         if (STATE.currentUser) {
             UI.header.name.textContent = `${STATE.currentUser.rank} ${STATE.currentUser.name}`;
         }
