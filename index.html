@@ -55,11 +55,11 @@
                     <p style="font-size: 14px; margin-bottom: 20px;">Complete biometric authentication to proceed.</p>
                     
                     <button id="btn-face-scan" class="btn-secondary" style="width:100%; margin-bottom:10px;">
-                        <span>👤</span> SCAN FACE
+                        <span></span> SCAN FACE
                     </button>
                     
                     <button id="btn-finger-scan" class="btn-secondary" style="width:100%;">
-                        <span>☝️</span> SCAN FINGERPRINT
+                        <span></span> SCAN FINGERPRINT
                     </button>
                 </div>
             </div>
@@ -283,6 +283,28 @@
             </div>
             <h3 id="bio-text">Authenticating...</h3>
         </div>
+    </div>
+    <div id="step-actions" class="hidden action-panel">
+        <h2 class="step-title">2. Select Procedure</h2>
+        <div class="grid-buttons">
+            <button id="btn-inspect" class="btn-secondary">
+                <span class="icon"></span> RUN INSPECTION ON VEHICLE
+            </button>
+            <button id="btn-ticket" class="btn-secondary">
+                <span class="icon"></span> ISSUE TICKET FOR TRAFFIC OFFENSE
+            </button>
+        </div>
+    </div>
+
+    <div id="step-impound" class="hidden action-panel" style="border: 2px solid #d32f2f; background: #ffebee; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;">
+        <h2 style="color: #c62828; font-weight: 800;">IMPOUND REQUIRED</h2>
+        <p style="color: #333; margin-bottom: 20px;">
+            This vehicle is flagged as <strong>HIGH RISK</strong>. <br>
+            Do not issue a standard ticket. Secure the vehicle immediately.
+        </p>
+        <button id="btn-confirm-impound" class="btn-primary" style="background-color: #c62828; width: 100%;">
+            CONFIRM IMPOUND COMPLETE
+        </button>
     </div>
 
     <script type="module" src="js/app.js"></script>

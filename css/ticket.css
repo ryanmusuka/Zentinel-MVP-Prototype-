@@ -90,11 +90,12 @@
 
 /* The "Blue Pen" Data */
 .fill-in, .fill-in-multi, .blue-ink {
-    font-family: "Caveat", "Brush Script MT", cursive, sans-serif; /* Handwriting style if available */
-    color: #00008b; /* Dark Blue Pen Color */
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-family: "Courier Prime", "Courier New", monospace;
+    color: #00008b; /* Dark Blue */
+    font-size: 1rem; /* Adjusted for better fit */
+    font-weight: 700; /* Bold */
     text-transform: uppercase;
+    letter-spacing: 0.05em; /* Spacing makes it very readable */
 }
 
 .signature-font {

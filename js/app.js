@@ -63,12 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const btnFinger = document.getElementById('btn-finger-scan');
     if (btnFinger) btnFinger.addEventListener('click', () => handleBiometric('fingerprint'));
-
+    
+    const btnImpound = document.getElementById('btn-confirm-impound');
+    if (btnImpound) btnImpound.addEventListener('click', () => {
+        alert("Impound Logged. Vehicle Status Updated.");
+        resetPatrol();
+    });
     // --- PATROL FLOW ---
     document.getElementById('btn-search').addEventListener('click', () => {
         resetSessionData();
         handleSearch();
     });
+    
+    document.getElementById('vrn-input').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
     
     // --- WORKSPACE NAVIGATION ---
     document.getElementById('btn-inspect').addEventListener('click', openInspectionView);
@@ -207,22 +216,53 @@ function completeLogin() {
    ========================================================================== */
 
 async function handleSearch() {
-    const vrn = UI.inputs.vrn.value.toUpperCase();
-    if (!vrn) return alert("Please enter a VRN");
-
-    UI.steps.result.innerHTML = '<p>Scanning Database...</p>';
-    UI.steps.result.classList.remove('hidden');
-
-    const analysis = await Vehicle.analyze(vrn);
-    STATE.currentVehicle = analysis;
-    renderStatusCard(analysis.status);
+    // 1. GET & CLEAN INPUT
+    const inputEl = document.getElementById('vrn-input'); 
+    let rawInput = inputEl.value.toUpperCase().trim(); 
     
-    UI.steps.actions.classList.remove('hidden');
+    // Remove existing dashes/spaces/special chars to get "CRIME001"
+    const cleanStr = rawInput.replace(/[^A-Z0-9]/g, '');
 
+    if (cleanStr.length === 0) return alert("Please enter a VRN");
+
+    // 2. SMART FORMATTING (Flexible)
+    // Regex explanation:
+    // ^([A-Z]+)  -> Capture any number of letters at the start (Group $1)
+    // ([0-9]+)$  -> Capture any number of digits at the end (Group $2)
+    let formattedVrn = cleanStr.replace(/^([A-Z]+)([0-9]+)$/, '$1-$2');
+
+    // 3. UPDATE UI 
+    inputEl.value = formattedVrn;
+
+    // 4. RESET UI STATE
+    document.getElementById('step-result').classList.remove('hidden');
+    document.getElementById('step-result').innerHTML = '<p>Scanning Database...</p>';
+    document.getElementById('step-actions').classList.add('hidden');
+    document.getElementById('step-impound').classList.add('hidden'); 
+
+    // 5. PERFORM ANALYSIS
+    const analysis = await Vehicle.analyze(formattedVrn); 
+    STATE.currentVehicle = analysis;
+    
+    // 6. RENDER CARD
+    const bgClass = analysis.status.color === 'RED' ? 'bg-red' : analysis.status.color === 'ORANGE' ? 'bg-orange' : 'bg-green';
+    document.getElementById('step-result').innerHTML = `
+        <div class="status-card ${bgClass}">
+            <h2>${analysis.status.headline}</h2>
+            <p>${analysis.status.message}</p>
+        </div>`;
+    
+    // 7. HANDLE RED / IMPOUND LOGIC
     if (analysis.status.color === 'RED') {
-        if (!STATE.currentUser.permissions.canOverrideImpound) {
-            alert("⚠️ WARNING: HIGH RISK VEHICLE. IMPOUND PROTOCOL ACTIVE.");
-        } 
+        document.getElementById('step-actions').classList.add('hidden');
+        document.getElementById('step-impound').classList.remove('hidden');
+        
+        if (!STATE.currentUser.permissions?.canOverrideImpound) {
+             // alert("⚠️ HIGH RISK VEHICLE DETECTED - IMPOUND REQUIRED");
+        }
+    } else {
+        document.getElementById('step-impound').classList.add('hidden');
+        document.getElementById('step-actions').classList.remove('hidden');
     }
 }
 
@@ -453,20 +493,20 @@ function resetPatrol() {
     const trafficInput = document.getElementById('traffic-ai-input');
     if(trafficInput) trafficInput.value = '';
     
+    // Hide everything
     const successMsg = document.getElementById('payment-success-msg');
     if(successMsg) successMsg.classList.add('hidden');
 
-    UI.steps.result.classList.add('hidden');
-    UI.steps.actions.classList.add('hidden');
-    UI.steps.workspace.classList.add('hidden');
+    document.getElementById('step-result').classList.add('hidden');
+    document.getElementById('step-actions').classList.add('hidden'); 
+    document.getElementById('step-impound').classList.add('hidden'); // <--- ADD THIS LINE
+    document.getElementById('step-workspace').classList.add('hidden');
     document.getElementById('ticket-confirm-box').classList.add('hidden');
-    if (UI.views.final) UI.views.final.classList.add('hidden');
     
+    if (UI.views.final) UI.views.final.classList.add('hidden');
     UI.views.patrol.classList.remove('hidden');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    console.log("[System] Ready for next vehicle.");
 }
 
 function updateNetworkStatus() {
