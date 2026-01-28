@@ -29,9 +29,10 @@ export const Vehicle = {
             return {
                 found: false,
                 status: {
+                    headline: "VEHICLE NOT FOUND",
                     color: "GREY",
-                    code: "OFFLINE_UNKNOWN",
-                    message: "Connection Failed. Verify Physical Disc."
+                    code: "OFFLINE OR NOT IN DATABASE",
+                    message: "Proceed with Caution - Manual Check Recommended",
                 }
             };
         }
@@ -73,8 +74,8 @@ function calculateStatus(vehicle, history) {
     return {
         headline: "VEHICLE CLEAR",
         color: "GREEN",
-        code: "ALLOW TO PROCEED or conduct an inspection",
-        message: "Vehicle Compliant",
+        code: "ALLOW TO PROCEED OR CONDUCT AN INSPECTION",
+        message: "Vehicle compliant and up to date with regulations.",
         action: "PASS"
     };
 }

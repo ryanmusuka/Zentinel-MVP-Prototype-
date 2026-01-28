@@ -9,6 +9,7 @@ import { Vehicle } from './modules/vehicle.js';
 import { Inspection } from './modules/inspection.js';
 import { AIAgent } from './modules/ai_agent.js';
 import { Payment } from './modules/payment.js';
+import { openFinalTicket, closeFinalTicket, processFinalPayment } from './modules/generateTicket.js';
 
 // --- APP STATE ---
 const STATE = {
@@ -23,7 +24,8 @@ const STATE = {
 const UI = {
     views: {
         login: document.getElementById('view-login'),
-        patrol: document.getElementById('view-patrol')
+        patrol: document.getElementById('view-patrol'),
+        final: document.getElementById('view-final-ticket') // Added Final View
     },
     login: {
         stage1: document.getElementById('login-stage-1'),
@@ -53,9 +55,14 @@ const UI = {
 document.addEventListener('DOMContentLoaded', () => {
     
     // --- LOGIN FLOW ---
-    document.getElementById('login-form').addEventListener('submit', handleCredentialCheck);
-    document.getElementById('btn-face-scan').addEventListener('click', () => handleBiometric('face'));
-    document.getElementById('btn-finger-scan').addEventListener('click', () => handleBiometric('fingerprint'));
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) loginForm.addEventListener('submit', handleCredentialCheck);
+    
+    const btnFace = document.getElementById('btn-face-scan');
+    if (btnFace) btnFace.addEventListener('click', () => handleBiometric('face'));
+    
+    const btnFinger = document.getElementById('btn-finger-scan');
+    if (btnFinger) btnFinger.addEventListener('click', () => handleBiometric('fingerprint'));
 
     // --- PATROL FLOW ---
     // Search resets the session data for a new car
@@ -74,17 +81,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Add Traffic Violations (AI Only)
     document.getElementById('btn-add-traffic').addEventListener('click', addTrafficToCart);
 
+    // --- NEW NAVIGATION LISTENERS ---
+    document.getElementById('btn-switch-to-ticket').addEventListener('click', openTicketView);
+    document.getElementById('btn-switch-to-inspect').addEventListener('click', openInspectionView);
     
-    // --- FINAL GENERATION  ---
-    document.getElementById('btn-generate-ticket').addEventListener('click', showFinalTicketPage);
-    document.getElementById('btn-edit-ticket').addEventListener('click', goBackToEditing);
+    // --- FINAL GENERATION (Summary Box) ---
+    document.getElementById('btn-generate-ticket').addEventListener('click', showSummaryBox);
+    
+    // --- NEW: PROCEED TO FINAL FORM (Form 265) ---
+    const btnProceed = document.getElementById('btn-proceed-to-final');
+    if (btnProceed) btnProceed.addEventListener('click', handleProceedToFinal);
+
+    // --- NEW: FINAL FORM ACTIONS ---
+    const btnPayOnline = document.getElementById('btn-final-pay-online');
+    if (btnPayOnline) btnPayOnline.addEventListener('click', () => processFinalPayment('online'));
+
+    const btnPrint = document.getElementById('btn-final-print');
+    if (btnPrint) btnPrint.addEventListener('click', () => processFinalPayment('print'));
+
+    const btnBackSummary = document.getElementById('btn-back-to-summary');
+    if (btnBackSummary) btnBackSummary.addEventListener('click', closeFinalTicket);
+
+    // FIX: Using resetPatrol instead of reload to keep user logged in
+    const btnFinish = document.getElementById('btn-finish-patrol');
+    if (btnFinish) btnFinish.addEventListener('click', resetPatrol);
 
     // --- UTILITIES ---
-    document.getElementById('btn-reset').addEventListener('click', resetPatrol);
-
-    // --- PAYMENT FLOW ---
-    document.getElementById('btn-pay-now').addEventListener('click', () => processPayment('ecocash'));
-    document.getElementById('btn-pay-later').addEventListener('click', () => processPayment('form265'));
+    // UPDATED: Fixed ID to match your HTML (btn-reset-all)
+    const btnReset = document.getElementById('btn-reset-all') || document.getElementById('btn-reset');
+    if (btnReset) btnReset.addEventListener('click', resetPatrol);
 
     // --- SYSTEM UTILS ---
     window.addEventListener('online', updateNetworkStatus);
@@ -202,7 +227,6 @@ async function handleSearch() {
     renderStatusCard(analysis.status);
     
     UI.steps.actions.classList.remove('hidden');
-    document.getElementById('btn-reset').classList.remove('hidden');
 
     // Handle Impound Scenarios
     if (analysis.status.color === 'RED') {
@@ -364,10 +388,10 @@ function addToSession(newItems) {
 }
 
 /* ==========================================================================
-   5. FINAL STAGE: GENERATE & PAY
+   5. FINAL STAGE: GENERATE SUMMARY & PROCEED
    ========================================================================== */
 
-function showFinalTicketPage() {
+function showSummaryBox() {
     // 1. Hide the Workspaces & Action Bar
     document.getElementById('workspace-inspection').classList.add('hidden');
     document.getElementById('workspace-ticket').classList.add('hidden');
@@ -377,15 +401,16 @@ function showFinalTicketPage() {
     const listContainer = document.getElementById('ticket-breakdown-list');
     listContainer.innerHTML = '';
     
-    STATE.sessionOffenses.forEach(item => {
+    STATE.sessionOffenses.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = 'breakdown-item';
-        div.style.animation = "fadeIn 0.5s";
+        div.className = 'summary-item'; // Matches CSS in main.css/components.css
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.borderBottom = '1px dashed #ccc';
+        div.style.padding = '5px 0';
+
         div.innerHTML = `
-            <span>
-                <small style="color:#b8860b; font-weight:bold; font-size:0.75rem;">${item.type}</small><br>
-                ${item.desc}
-            </span>
+            <span>${index+1}. ${item.desc}</span>
             <strong>$${item.fine}</strong>
         `;
         listContainer.appendChild(div);
@@ -395,25 +420,39 @@ function showFinalTicketPage() {
     const total = STATE.sessionOffenses.reduce((sum, item) => sum + item.fine, 0);
     document.getElementById('lbl-total-fine').textContent = `$${total}.00`;
 
-    // 3. Show Final Page
+    // 3. Show Summary Box
     const finalBox = document.getElementById('ticket-confirm-box');
     finalBox.classList.remove('hidden');
     finalBox.scrollIntoView({ behavior: 'smooth' });
-
-    // 4. Create Ticket Object
-    STATE.currentTicket = {
-        vrn: STATE.currentVehicle.data.vrn,
-        amount: total,
-        offenses: STATE.sessionOffenses
-    };
 }
 
-function goBackToEditing() {
-    // Hides Final Page, Shows Workspace again (defaulting to Inspection view)
-    document.getElementById('ticket-confirm-box').classList.add('hidden');
-    openInspectionView();
-    // Show the generate button again since we still have items
-    document.getElementById('action-bar-final').classList.remove('hidden');
+// --- IN js/app.js ---
+
+function handleProceedToFinal() {
+    // 1. Gather all necessary data from STATE
+    const ticketData = {
+        // Officer Data (From Login)
+        officer: {
+            name: STATE.currentUser.name,
+            rank: STATE.currentUser.rank,
+            forceId: STATE.currentUser.forceId,
+            station: "HRE CENTRAL TRAFFIC" // You can store this in Auth if needed
+        },
+        // Vehicle/Offender Data (From Search Results)
+        offender: {
+            name: STATE.currentVehicle ? STATE.currentVehicle.data.owner : "UNKNOWN DRIVER",
+            address: "1 Mock Address Ave, Harare, Zimbabwe", // Mocked as Zinara usually provides this
+            vrn: UI.inputs.vrn.value || "Unknown",
+            make: STATE.currentVehicle ? STATE.currentVehicle.data.make : "N/A"
+        },
+        // The Crime
+        offenses: STATE.sessionOffenses,
+        total: STATE.sessionOffenses.reduce((sum, item) => sum + item.fine, 0),
+        dateTime: new Date()
+    };
+
+    // 2. Call the generator
+    openFinalTicket(ticketData);
 }
 
 /* ==========================================================================
@@ -426,26 +465,6 @@ function resetSessionData() {
     document.getElementById('ticket-breakdown-list').innerHTML = '';
     document.getElementById('lbl-total-fine').textContent = '$0.00';
     document.getElementById('ticket-confirm-box').classList.add('hidden');
-}
-
-async function processPayment(method) {
-    if (!STATE.currentTicket) return;
-
-    const btn = method === 'ecocash' ? document.getElementById('btn-pay-now') : document.getElementById('btn-pay-later');
-    const originalText = btn.textContent;
-    btn.textContent = "Processing...";
-
-    try {
-        const result = await Payment.processPayment(STATE.currentTicket, method, "0771234567");
-        if (result.success) {
-            alert(`SUCCESS: ${result.message}\nRef: ${result.receiptRef}`);
-            resetPatrol();
-        }
-    } catch (e) {
-        alert("Error: " + e.message);
-    } finally {
-        btn.textContent = originalText;
-    }
 }
 
 function renderStatusCard(status) {
@@ -476,14 +495,20 @@ function resetPatrol() {
     
     const trafficInput = document.getElementById('traffic-ai-input');
     if(trafficInput) trafficInput.value = '';
+    
+    // Hide payment success message if it's currently showing
+    const successMsg = document.getElementById('payment-success-msg');
+    if(successMsg) successMsg.classList.add('hidden');
 
-    // 3. Hide Views
+    // 3. Hide All Views
     UI.steps.result.classList.add('hidden');
     UI.steps.actions.classList.add('hidden');
     UI.steps.workspace.classList.add('hidden');
+    document.getElementById('ticket-confirm-box').classList.add('hidden');
+    if (UI.views.final) UI.views.final.classList.add('hidden');
     
-    // 4. Hide Reset Button
-    document.getElementById('btn-reset').classList.add('hidden');
+    // Ensure Patrol view is visible (Back to Search)
+    UI.views.patrol.classList.remove('hidden');
 
     // 5. Scroll to Top
     window.scrollTo({ top: 0, behavior: 'smooth' });

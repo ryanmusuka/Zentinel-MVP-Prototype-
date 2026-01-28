@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/ticket.css">
     <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
@@ -28,49 +29,43 @@
     </header>
 
     <main class="app-container">
-
         <section id="view-login" class="active-view">
-            <div class="login-panel">
-                <div class="crest-placeholder">ZRP</div>
-                <h1>Officer Login</h1>
+    <div class="login-panel">
+        <div class="crest-placeholder">ZRP</div>
+        <h2 style="color:var(--zrp-blue); margin-bottom: 5px;">OFFICER LOGIN</h2>
+        <p style="color:#666; font-size:12px; margin-bottom:20px;">Restricted Access: ZRP Traffic Patrol Officers Only.</p>
+
+        <div id="login-stage-1">
+            <form id="login-form">
+                <label>FORCE NUMBER</label>
+                <input type="text" id="force-id" placeholder="e.g. 9921" required>
                 
-                <div id="login-stage-1">
-                    <p class="instruction">Enter Force Number to activate patrol mode.</p>
-                    
-                    <form id="login-form">
-                        <label>FORCE ID</label>
-                        <input type="text" id="force-id" placeholder="e.g. 9921" inputmode="numeric" required>
-                        
-                        <label>PASSWORD</label>
-                        <input type="password" id="password" required>
-                        
-                        <button type="submit" class="btn-primary btn-large">VERIFY CREDENTIALS</button>
-                    </form>
-                </div>
+                <label>PASSWORD</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+                
+                <button type="submit" class="btn-primary" style="margin-top:15px;">
+                    VERIFY CREDENTIALS
+                </button>
+            </form>
+        </div>
 
-                <div id="login-stage-2" class="hidden">
-                    <div class="success-banner">✔ Credentials Verified</div>
-                    <p class="instruction">Security Requirement: Select Biometric Scan</p>
-                    
-                    <div class="bio-grid">
-                        <button id="btn-face-scan" class="btn-bio">
-                            <span class="bio-icon">👤</span>
-                            <span>FACE ID</span>
-                        </button>
-                        <button id="btn-finger-scan" class="btn-bio">
-                            <span class="bio-icon">👆</span>
-                            <span>FINGERPRINT</span>
-                        </button>
-                    </div>
+        <div id="login-stage-2" class="hidden" style="text-align: center;">
+            <p style="color: green; font-weight: bold; margin-bottom: 15px;"> Credentials Verified</p>
+            <p style="font-size: 14px; margin-bottom: 20px;">Complete biometric authentication to proceed.</p>
+            
+            <button id="btn-face-scan" class="btn-secondary" style="width:100%; margin-bottom:10px;">
+                <span>👤</span> SCAN FACE
+            </button>
+            
+            <button id="btn-finger-scan" class="btn-secondary" style="width:100%;">
+                <span>☝️</span> SCAN FINGERPRINT
+            </button>
+        </div>
 
-                    <p id="bio-feedback" class="scanning-text hidden">Initializing Hardware...</p>
-                </div>
-
-            </div>
-        </section>
+    </div>
+</section>
 
         <section id="view-patrol" class="hidden">
-            
             <div class="step-container" id="step-identify">
                 <h2 class="step-title">1. Identify Vehicle</h2>
                 <div class="search-group">
@@ -78,104 +73,244 @@
                     <button id="btn-search" class="btn-primary">SEARCH DATABASE</button>
                 </div>
             </div>
-
-            <div id="step-result" class="hidden">
-            </div>
-
-            <div id="step-actions" class="hidden action-panel">
-                <h2 class="step-title">2. Select Procedure</h2>
+            
+            <div id="step-result" class="hidden"></div>
+             <div id="step-actions" class="hidden action-panel">
+                 <h2 class="step-title">2. Select Procedure</h2>
                 <div class="grid-buttons">
                     <button id="btn-inspect" class="btn-secondary">
-                        <span class="icon"></span> RUN INSPECTION
+                        <span class="icon"></span> RUN INSPECTION ON VEHICLE
                     </button>
                     <button id="btn-ticket" class="btn-secondary">
-                        <span class="icon"></span> ISSUE TICKET
+                        <span class="icon"></span> ISSUE TICKET FOR TRAFFIC OFFENSE
                     </button>
+                </div>
+             </div>
+             <div id="step-workspace" class="hidden workspace-panel">
+                 <div id="workspace-inspection" class="hidden">
+                      <h2 class="step-title">3. Digital Inspection (SI 154)</h2>
+                        <div class="panel-section">
+                            <h4>Standard Checklist</h4>
+                            <div id="checklist-container" class="checklist-grid"></div>
+                        </div>
+                
+                        <div class="panel-section ai-section">
+                            <h4>Other</h4>
+                            <div class="ai-input-wrapper">
+                                <textarea id="inspect-ai-input" rows="2" placeholder="Describe defects (e.g. Broken windshield)..."></textarea>
+                            </div>
+                        </div>
+                
+                        <button id="btn-add-inspection" class="btn-primary">
+                            ✚ ADD FINDINGS TO TICKET
+                        </button>
+                        <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
+                    <p style="font-size: 0.8rem; color: #666;">Need to add a traffic offense?</p>
+                    <button id="btn-switch-to-ticket" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                        SWITCH TO TRAFFIC OFFENSE
+                    </button>
+                </div>
+                  </div>
+                  <div id="workspace-ticket" class="hidden">
+                      <h2 class="step-title">3. Traffic Offense</h2>
+        
+                        <div class="panel-section ai-section" style="border-left-color: var(--zrp-blue);">
+                            <h4>Describe Violation</h4>
+                            <div class="ai-input-wrapper">
+                                <textarea id="traffic-ai-input" rows="3" placeholder="Describe offense (e.g. Speeding in school zone)..."></textarea>
+                            </div>
+                        </div>
+                
+                        <button id="btn-add-traffic" class="btn-secondary">
+                            ✚ ADD OFFENSE TO TICKET
+                        </button>
+                        <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
+                    <p style="font-size: 0.8rem; color: #666;">Need to inspect vehicle defects?</p>
+                    <button id="btn-switch-to-inspect" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                        SWITCH TO INSPECTION
+                    </button>
+                </div>
+                  </div>
+
+                 <div id="action-bar-final" class="hidden" style="margin-top: 20px; text-align: center;">
+                    <p style="color: green; margin-bottom: 10px;">✔ Items added.</p>
+                    <button id="btn-generate-ticket" class="btn-success full-width">
+                        GENERATE OFFENSE SUMMARY
+                    </button>
+                </div>
+             </div>
+
+            <div id="ticket-confirm-box" class="hidden">
+                <div class="divider"></div>
+                <h2 style="text-align: center; color: var(--zrp-blue);">OFFENSE SUMMARY</h2>
+                
+                <div id="ticket-breakdown-list"></div>
+
+                <div class="total-row">
+                    <span>TOTAL PAYABLE:</span>
+                    <span id="lbl-total-fine">$0.00</span>
+                </div>
+
+                <button id="btn-proceed-to-final" class="btn-primary full-width" style="margin-top:15px; font-weight:800;">
+                    PROCEED TO FINAL TICKET →
+                </button>
+                <button id="btn-reset-all" class="btn-text" style="margin-top:10px; width:100%;">Cancel / Reset</button>
+            </div>
+        </section>
+
+
+        <section id="view-final-ticket" class="hidden">
+            
+            <div class="form-scroll-container">
+                <div class="paper-form-265">
+                    
+                    <div class="f265-header">
+                        <div class="f265-meta-left">COURT FORMS Z69J</div>
+                        <div class="f265-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Zimbabwe_Republic_Police_Logo.png" alt="ZRP">
+                            <div class="zrp-title">ZIMBABWE REPUBLIC POLICE</div>
+                        </div>
+                        <div class="f265-serial">1264615 <span class="serial-suffix">A</span></div>
+                    </div>
+
+                    <h1 class="f265-title">ADMISSION OF GUILT TRAFFIC FINE</h1>
+
+                    <div class="f265-top-grid">
+                        <div class="f265-warning">
+                            <strong>"WARNING"</strong>
+                            <p>YOU SHOULD NOT PAY A DEPOSIT FINE OR SIGN AN ADMISSION OF GUILT UNLESS YOU ADMIT THAT YOU ARE GUILTY OF THE OFFENCE(S) CHARGED...</p>
+                        </div>
+                        <div class="f265-station-info">
+                            <div class="f265-row">
+                                <label>Station:</label> 
+                                <span class="handwritten" id="f265-station">HARARE CENTRAL</span>
+                            </div>
+                            <div class="f265-row">
+                                <label>Arresting detail No:</label> 
+                                <span class="handwritten" id="f265-force-num">9921</span>
+                                <label>Rank:</label>
+                                <span class="handwritten">CST</span>
+                            </div>
+                            <div class="f265-row">
+                                <label>Name:</label>
+                                <span class="handwritten" id="f265-officer-name">DIZA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f265-personal-grid">
+                        <div class="f265-field full-width">
+                            <label>Surname of person admitting guilt:</label>
+                            <span class="handwritten" id="f265-surname">UNKNOWN (DRIVER)</span>
+                        </div>
+                        <div class="f265-field full-width">
+                            <label>Other names:</label>
+                            <span class="handwritten" id="f265-names">---</span>
+                        </div>
+                        <div class="f265-field half-width">
+                            <label>Residential Address:</label>
+                            <span class="handwritten">NOT PROVIDED</span>
+                        </div>
+                        <div class="f265-field half-width">
+                            <label>Business Address:</label>
+                            <span class="handwritten">N/A</span>
+                        </div>
+                        <div class="f265-field quarter-width border-left">
+                            <label>Date of birth:</label>
+                            <span class="handwritten">--/--/--</span>
+                        </div>
+                        <div class="f265-field quarter-width border-left">
+                            <label>Place of birth:</label>
+                            <span class="handwritten">HRE</span>
+                        </div>
+                    </div>
+
+                    <div class="f265-charge-section">
+                        <div class="f265-row">
+                            <label>Charge (section and statutory enactment):</label>
+                            <span class="handwritten" id="f265-charge-code">SEC 76 RTA</span>
+                        </div>
+                        <div class="f265-row">
+                            <label>Brief description of offence(s):</label>
+                            <span class="handwritten" id="f265-desc">SPEEDING / VARIOUS OFFENSES</span>
+                        </div>
+                        <div class="f265-row three-col">
+                            <div><label>Date:</label> <span class="handwritten" id="f265-date">28/01/26</span></div>
+                            <div><label>Time:</label> <span class="handwritten" id="f265-time">10:45</span></div>
+                            <div><label>Place:</label> <span class="handwritten">HARARE</span></div>
+                        </div>
+                    </div>
+
+                    <div class="f265-fine-row">
+                        <label>AMOUNT OF DEPOSIT FINE FIXED BY PRESCRIBED OFFICER:</label>
+                        <div class="fine-box handwritten" id="f265-amount">$00.00</div>
+                    </div>
+
+                    <div class="f265-declaration">
+                        <p>I, the above named, having been summoned/warned to appear in court... do hereby admit that I am guilty of the said offence(s)...</p>
+                    </div>
+
+                    <div class="f265-signatures">
+                        <div class="sig-block">
+                            <label>Witnessed by:</label>
+                            <div class="handwritten">994141M CST DIZA</div>
+                        </div>
+                        <div class="sig-block right">
+                            <div class="fake-sig">Signature</div>
+                            <label>(Director/Manager/Secretary)</label>
+                        </div>
+                    </div>
+
+                    <div class="f265-receipt">
+                        <div class="rec-row">
+                            <label>RECEIVED the sum of (amount in words):</label>
+                            <span class="handwritten" id="f265-words">FIFTEEN DOLLARS</span>
+                        </div>
+                        <div class="rec-sig-row">
+                            <div>
+                                <label>Witnessed by Number:</label> <span class="handwritten">087384G</span>
+                                <label>Rank:</label> <span class="handwritten">CST</span>
+                            </div>
+                            <div>
+                                <label>Name:</label> <span class="handwritten">CHANDIGERE</span>
+                            </div>
+                            <div class="official-sig">
+                                <label>Signature of receiving official:</label>
+                                <span class="handwritten sig-style">Diza.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f265-footer">
+                        <div>DRIVER'S LICENCE FOR ENDORSEMENT</div>
+                        <div>No.: <span class="handwritten">-----</span></div>
+                        <div>Date of Issue: <span class="handwritten">-----</span></div>
+                        <div>Place of Issue: <span class="handwritten">-----</span></div>
+                    </div>
+
+                </div> <div class="final-actions-container">
+                    <button id="btn-final-pay-online" class="btn-success big-btn">
+                        <span></span> PAY ONLINE
+                    </button>
+                    <button id="btn-final-print" class="btn-outline big-btn">
+                        <span></span> PRINT / ISSUE FORM 265
+                    </button>
+                    <button id="btn-back-to-summary" class="btn-text">← Back to Summary</button>
                 </div>
             </div>
 
-      <div id="step-workspace" class="hidden workspace-panel">
-    
-    <div id="workspace-inspection" class="hidden">
-        <h2 class="step-title">3. Digital Inspection (SI 154)</h2>
-        
-        <div class="panel-section">
-            <h4>Standard Checklist</h4>
-            <div id="checklist-container" class="checklist-grid"></div>
-        </div>
-
-        <div class="panel-section ai-section">
-            <h4>Physical Defects (AI)</h4>
-            <div class="ai-input-wrapper">
-                <textarea id="inspect-ai-input" rows="2" placeholder="Describe defects (e.g. Broken windshield)..."></textarea>
+            <div id="payment-success-msg" class="hidden">
+                 <div class="success-content">
+                    <div class="big-check">✔</div>
+                    <h2 id="success-title">PAYMENT SUCCESSFUL</h2>
+                    <p id="success-desc">Receipt sent to driver.</p>
+                    <button id="btn-finish-patrol" class="btn-primary">RETURN TO PATROL</button>
+                </div>
             </div>
-        </div>
-
-        <button id="btn-add-inspection" class="btn-primary">
-            ✚ ADD FINDINGS TO TICKET
-        </button>
-        <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
-    <p style="font-size: 0.8rem; color: #666;">Need to add a traffic offense?</p>
-    <button id="btn-switch-to-ticket" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-        SWITCH TO TRAFFIC OFFENSE
-    </button>
-</div>
-    </div>
-
-    <div id="workspace-ticket" class="hidden">
-        <h2 class="step-title">3. Traffic Offense</h2>
-        
-        <div class="panel-section ai-section" style="border-left-color: var(--zrp-blue);">
-            <h4>Moving Violation</h4>
-            <div class="ai-input-wrapper">
-                <textarea id="traffic-ai-input" rows="3" placeholder="Describe offense (e.g. Speeding in school zone)..."></textarea>
-            </div>
-        </div>
-
-        <button id="btn-add-traffic" class="btn-secondary">
-            ✚ ADD OFFENSE TO TICKET
-        </button>
-        <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px; text-align: center;">
-    <p style="font-size: 0.8rem; color: #666;">Need to inspect vehicle defects?</p>
-    <button id="btn-switch-to-inspect" style="background: none; border: 1px solid var(--zrp-blue); color: var(--zrp-blue); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-        SWITCH TO INSPECTION
-    </button>
-</div>
-    </div>
-
-    <div id="action-bar-final" class="hidden" style="margin-top: 20px; text-align: center;">
-        <p style="color: green; margin-bottom: 10px;">✔ Items added to ticket.</p>
-        <button id="btn-generate-ticket" class="btn-success" style="background-color: #28a745; color: white; border: none; padding: 15px 30px; font-size: 1.2rem; width: 100%; font-weight: 800; letter-spacing: 1px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-     GENERATE FINAL TICKET
-</button>
-    </div>
-
-    <div id="ticket-confirm-box" class="hidden">
-        <div class="divider"></div>
-        <h2 style="text-align: center; color: var(--zrp-blue);">OFFENSE SUMMARY</h2>
-        
-        <div id="ticket-breakdown-list">
-            </div>
-
-        <div class="total-row">
-            <span>TOTAL PAYABLE:</span>
-            <span id="lbl-total-fine">$0.00</span>
-        </div>
-
-        <div class="payment-actions">
-            <button id="btn-pay-now" class="btn-success">ECOCASH (PAY NOW)</button>
-            <button id="btn-pay-later" class="btn-outline">ISSUE FORM 265 (PAY LATER)</button>
-            <button id="btn-edit-ticket" class="btn-text" style="margin-top:10px; text-decoration:underline;">← Go Back / Add More</button>
-        </div>
-    </div>
-
-</div>
-
-            <button id="btn-reset" class="btn-text hidden">Reset</button>
 
         </section>
-
     </main>
+
     <div id="bio-overlay" class="hidden">
     <div class="bio-box" id="bio-box">
         
