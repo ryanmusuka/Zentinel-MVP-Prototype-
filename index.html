@@ -48,7 +48,71 @@
                             VERIFY CREDENTIALS
                         </button>
                     </form>
+                    <div class="demo-instructions-panel" style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; font-family: sans-serif; font-size: 13px; text-align: left;">
+                    <h3 style="color: #333; margin-top: 0; margin-bottom: 10px; font-size: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">🛠 Prototype Testing Guide</h3>
+
+                    <h4 style="margin: 10px 0 5px 0; color: #555;">Login Credentials</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                        <tr style="background-color: #e9ecef;">
+                            <th style="padding: 8px; border: 1px solid #ccc;">Force ID</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Password</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Rank</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Access Level</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc;">9921</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">password123</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Constable</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Standard: Can scan cars & issue tickets.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc;">1001</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">admin777</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Inspector</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">High: Can override impounds & view sensitive logs.</td>
+                        </tr>
+                    </table>
+
+                    <div style="background-color: #fff3cd; color: #856404; padding: 10px; border: 1px solid #ffeeba; border-radius: 4px; margin-bottom: 15px;">
+                        <strong>Note on Biometrics:</strong> After login, you will be prompted to perform a biometric scan. This is a simulation with a 50% success chance. Please continuously click until login is successful.
+                    </div>
+
+                    <h4 style="margin: 10px 0 5px 0; color: #555;">VRN Testing Scenarios</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background-color: #e9ecef;">
+                            <th style="padding: 8px; border: 1px solid #ccc;">Test VRN</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Risk Level / UI Status</th>
+                            <th style="padding: 8px; border: 1px solid #ccc;">Description & Expected Action</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">ABC-1234</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">🟢 GREEN <br> VEHICLE CLEAR</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Perfect format, known plate. Shows standard details and procedure buttons.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">HRE-5555</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">🟠 ORANGE <br> LICENSE EXPIRED</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Perfect format, flagged expired. Shows standard details and procedure buttons.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">CRIME-001</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">🔴 RED <br> STOLEN VEHICLE</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Perfect format, flagged stolen. Triggers the critical Impound UI.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">XYZ-9999</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">🔴 RED <br> HABITUAL OFFENDER</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Perfect format, multiple warrants. Triggers the critical Impound UI.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold;">HELLO<br><span style="font-weight: normal; font-size: 11px;">(or ABC-12)</span></td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">⚪ GRAY <br> INVALID REG NUMBER</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">Fails the "3 letters + 4 numbers" check. Shows format error banner.</td>
+                        </tr>
+                    </table>
                 </div>
+                </div>
+                
 
                 <div id="login-stage-2" class="hidden" style="text-align: center;">
                     <p style="color: green; font-weight: bold; margin-bottom: 15px;"> Credentials Verified</p>

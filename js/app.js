@@ -16,7 +16,7 @@ const STATE = {
     currentUser: null,
     currentVehicle: null,
     currentTicket: null, 
-    sessionOffenses: [], // The "Shopping Cart"
+    sessionOffenses: [], 
     isOffline: !navigator.onLine
 };
 

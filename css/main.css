@@ -11,8 +11,8 @@
     --grey-bg: #F0F2F5;
     
     /* SIGNAL COLORS */
-    --green: #00703C; /* Gov.uk Green */
-    --red: #D4351C;   /* Gov.uk Red */
+    --green: #00703C; 
+    --red: #D4351C;   
     --orange: #F47738;
     
     /* SPACING */
@@ -27,7 +27,6 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* HEADER: Always fixed at top context */
 header {
     background: var(--navy);
     color: var(--white);
@@ -68,7 +67,7 @@ header {
 /* CONTAINER */
 .app-container {
     padding: var(--pad);
-    max-width: 600px; /* Tablet width limit for readability */
+    max-width: 600px; 
     margin: 0 auto;
 }
 
@@ -107,7 +106,7 @@ header {
 
 .btn-bio:hover {
     transform: translateY(-5px);
-    background: #FFFAF0; /* Light cream hover */
+    background: #FFFAF0; 
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
@@ -132,11 +131,6 @@ header {
     animation: fadeIn 0.5s;
 }
 
-/* Ensure the 'hidden' class works */
-.hidden {
-    display: none !important;
-}
-
 /* ==========================================================================
    BIOMETRIC ANIMATIONS (iPhone Style)
    ========================================================================== */
@@ -158,7 +152,7 @@ header {
 .bio-box {
     width: 220px;
     height: 220px;
-    background: rgba(30, 50, 90, 0.95); /* Deep Blue */
+    background: rgba(30, 50, 90, 0.95); 
     border-radius: 25px;
     display: flex;
     flex-direction: column;
@@ -185,8 +179,8 @@ header {
 .scan-ring {
     position: absolute;
     width: 100%; height: 100%;
-    border: 4px solid rgba(255, 215, 0, 0.2); /* Faint Gold */
-    border-top: 4px solid #FFD700; /* Bright Gold */
+    border: 4px solid rgba(255, 215, 0, 0.2); 
+    border-top: 4px solid #FFD700;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -251,9 +245,6 @@ header {
 @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* Helpers to hide/show specific icons */
-.hidden { display: none !important; }
 
 /* ==========================================================================
    COMBINED WORKSPACE STYLES
